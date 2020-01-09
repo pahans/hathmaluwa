@@ -15,7 +15,7 @@
   "scripts": {
     "dev": "ts-node src/server.ts",
     "build": "tsc -p .",
-    "start": "npm run build && ts-node dist/server.js",
+    "start": "ts-node dist/server.js",
     "test": "ts-mocha test/*.test.ts --exit"
   },
   "dependencies": {
