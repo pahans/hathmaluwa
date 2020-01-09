@@ -9,7 +9,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [8.x, 10.x, 12.x]
+        node-version: [10]
 
     steps:
     - uses: actions/checkout@v1
@@ -27,7 +27,7 @@ jobs:
     - name: Deploy
       uses: actions-hub/gcloud@master
       env:
-        PROJECT_ID: test
+        PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
         APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
       with:
-        args: info
+        args: app deploy
