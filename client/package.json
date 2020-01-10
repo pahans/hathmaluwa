@@ -4,9 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack",
-    "build": "webpack",
-    "start": "ts-node dist/index.js"
+    "build": "webpack"
   },
   "author": "Pahan Sarathchandra",
   "license": "ISC",
@@ -23,8 +21,6 @@
     "html-webpack-plugin": "^3.2.0",
     "source-map-loader": "^0.2.4",
     "ts-loader": "^6.2.1",
-    "ts-node": "^8.5.4",
-    "ts-watch": "^1.0.8",
     "typescript": "^3.7.4",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10"
