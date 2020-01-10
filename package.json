@@ -16,21 +16,22 @@
     "dev": "nodemon",
     "build": "tsc -p .",
     "start": "ts-node dist/server.js",
-    "test": "ts-mocha test/*.test.ts --exit"
+    "build-client": "cd client && npm i && npm run build",
+    "test": "npm run build-client && ts-mocha test/*.test.ts --exit"
   },
   "dependencies": {
-    "express": "^4.17.1"
+    "@types/express": "^4.17.2",
+    "@types/node": "^13.1.6",
+    "express": "^4.17.1",
+    "ts-node": "^8.6.0",
+    "typescript": "^3.7.4"
   },
   "devDependencies": {
     "@types/expect": "^24.3.0",
-    "@types/express": "^4.17.2",
     "@types/mocha": "^5.2.7",
-    "@types/node": "^13.1.5",
     "mocha": "^6.1.4",
     "nodemon": "^2.0.2",
     "supertest": "^4.0.2",
-    "ts-mocha": "^6.0.0",
-    "ts-node": "^8.5.4",
-    "typescript": "^3.7.4"
+    "ts-mocha": "^6.0.0"
   }
 }

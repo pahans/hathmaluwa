@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "webpack",
-    "build": "tsc -p .",
+    "build": "webpack",
     "start": "ts-node dist/index.js"
   },
   "author": "Pahan Sarathchandra",
