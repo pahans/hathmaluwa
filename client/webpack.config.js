@@ -6,6 +6,12 @@ var webpackMajorVersion = require('webpack/package.json').version.split('.')[0];
 module.exports = {
     mode: "production",
 
+    devServer: {
+        contentBase: path.join(__dirname, 'dist'),
+        compress: true,
+        port: 9000
+    },
+
     // Enable sourcemaps for debugging webpack's output.
     devtool: "source-map",
 
