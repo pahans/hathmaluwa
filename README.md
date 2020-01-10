@@ -16,7 +16,7 @@ Before you can run or deploy, you need to do the following:
 
 1.  Install dependencies:
 
-        npm install
+    npm install
 
 ## Running locally
 
