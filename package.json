@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "express": "^4.17.1",
-    "typescript": "^3.7.4"
+    "typescript": "^3.7.5"
   },
   "devDependencies": {
     "@types/expect": "^24.3.0",
