@@ -1,8 +1,9 @@
-import Welcome from './components/App';
+import 'typeface-roboto';
+import App from './components/App';
 import * as ReactDOM from 'react-dom';
 import * as React from 'react';
 
 ReactDOM.render(
-    <Welcome />,
+    <App />,
     document.getElementById('root')
 );

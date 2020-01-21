@@ -45,18 +45,26 @@ module.exports = {
                 loader: "source-map-loader"
             },
             {
+                test: /\.(woff|woff2|eot|ttf|otf)$/,
+                loader: 'file-loader'
+            },
+            {
                 test: /\.ico$/,
                 loader: 'file-loader'
-            }
+            },
+            {
+                test: /\.css$/i,
+                use: ['style-loader', 'css-loader'],
+            },
         ]
     },
     plugins: [
         new HtmlWebpackPlugin({
-          filename: 'index.html',
-          favicon: 'public/favicon.ico',
-          template: 'public/index.html'
+            filename: 'index.html',
+            favicon: 'public/favicon.ico',
+            template: 'public/index.html'
         }),
-        
+
     ],
 
     // When importing a module whose path matches one of the following, just
