@@ -10,7 +10,7 @@
   "author": "Pahan Sarathchandra",
   "license": "ISC",
   "dependencies": {
-    "@material-ui/core": "^4.9.1",
+    "@material-ui/core": "^4.9.2",
     "@material-ui/icons": "^4.9.1",
     "prop-types": "^15.7.2",
     "react": "^16.12.0",
