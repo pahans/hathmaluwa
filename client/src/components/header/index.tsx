@@ -7,6 +7,8 @@ import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import BrightnessMediumIcon from '@material-ui/icons/BrightnessMedium';
+import * as PropTypes from "prop-types";
+import { InferProps } from "prop-types";
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -20,9 +22,10 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-export default function ButtonAppBar() {
+export default function ButtonAppBar({
+    setDarkMode
+  }: InferProps<typeof ButtonAppBar.propTypes>) {
     const classes = useStyles({});
-
     return (
         <div className={classes.root}>
             <AppBar position="static">
@@ -32,8 +35,8 @@ export default function ButtonAppBar() {
                     </IconButton>
                     <Typography variant="h6" className={classes.title}>
                         News
-          </Typography>
-                    <IconButton color="primary" aria-label="upload picture" component="span">
+                    </Typography>
+                    <IconButton aria-label="toggle dark mode" onClick={setDarkMode}>
                         <BrightnessMediumIcon />
                     </IconButton>
                     <Button color="inherit">Login</Button>
@@ -42,3 +45,8 @@ export default function ButtonAppBar() {
         </div>
     );
 }
+
+ButtonAppBar.propTypes = {
+    darkMode: PropTypes.bool,
+    setDarkMode: PropTypes.func
+} 
