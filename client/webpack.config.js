@@ -1,7 +1,5 @@
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
-var webpackMajorVersion = require('webpack/package.json').version.split('.')[0];
-
 
 module.exports = {
     mode: "production",
