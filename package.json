@@ -24,7 +24,7 @@
     "errorhandler": "^1.5.1",
     "express": "^4.17.1",
     "pubsubhubbub": "^1.0.1",
-    "rss-parser": "^3.7.5",
+    "rss-parser": "^3.7.6",
     "typescript": "^3.8.3"
   },
   "devDependencies": {
