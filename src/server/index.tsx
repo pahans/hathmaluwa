@@ -7,6 +7,8 @@ import pubSubHubbub from 'pubsubhubbub';
 import { renderToString } from 'react-dom/server';
 import React from 'react';
 import Home from '../client/components/Home';
+import { ServerStyleSheets, ThemeProvider } from '@material-ui/core/styles';
+
 var mustacheExpress = require('mustache-express');
 
 const app = express();
@@ -23,9 +25,11 @@ const pubsub = pubSubHubbub.createServer({
 app.use(PUBSUB_PATH, pubsub.listener());
 
 app.get('/', (req, res) =>{
-  const reactComp = renderToString(<Home />);
+  const sheets = new ServerStyleSheets();
+  const reactComp = renderToString(sheets.collect(<Home />));
   res.render('default', {
     title: 'hello',
+    css: sheets,
     body: reactComp
   });
   // res.sendFile(path.join(__dirname+'/../../../client_dist/index.html'));
