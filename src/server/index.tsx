@@ -1,11 +1,18 @@
 'use strict';
 
-const express = require('express');
-const path = require('path');
-const errorHandler = require('errorhandler');
-const pubSubHubbub = require('pubsubhubbub');
+import express from 'express';
+import path from 'path';
+import errorHandler from 'errorhandler';
+import pubSubHubbub from 'pubsubhubbub';
+import { renderToString } from 'react-dom/server';
+import React from 'react';
+import Home from '../client/components/Home';
+var mustacheExpress = require('mustache-express');
 
 const app = express();
+app.engine('mustache', mustacheExpress());
+app.set('view engine', 'mustache');
+app.set('views', __dirname + '/templates');
 
 const PUBSUB_PATH = '/pubSubHubbub';
 
@@ -16,10 +23,15 @@ const pubsub = pubSubHubbub.createServer({
 app.use(PUBSUB_PATH, pubsub.listener());
 
 app.get('/', (req, res) =>{
-  res.sendFile(path.join(__dirname+'/../client/dist/index.html'));
+  const reactComp = renderToString(<Home />);
+  res.render('default', {
+    title: 'hello',
+    body: reactComp
+  });
+  // res.sendFile(path.join(__dirname+'/../../../client_dist/index.html'));
 });
 
-app.use('/static', express.static(path.join(__dirname+'/../client/dist')))
+app.use('/static', express.static(path.join(__dirname+'/../../client_dist/')))
 
 app.use(errorHandler());
 

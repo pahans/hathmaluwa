@@ -1,12 +1,18 @@
 var HtmlWebpackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const path = require('path');
 
 module.exports = {
     mode: "production",
 
+    entry: {
+        client: './src/client/index.tsx',
+    },
+
     devServer: {
-        contentBase: path.join(__dirname, 'dist'),
+        contentBase: path.join(__dirname, 'client_dist'),
         compress: true,
+        historyApiFallback: true,
         port: 9000
     },
 
@@ -19,8 +25,8 @@ module.exports = {
     },
 
     output: {
-        path: path.join(__dirname, 'dist'),
-        publicPath: '/static',
+        path: path.join(__dirname, 'client_dist'),
+        publicPath: '/static/',
         filename: 'bundle.js',
         libraryTarget: 'umd',
     },
@@ -57,12 +63,12 @@ module.exports = {
         ]
     },
     plugins: [
+        new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({
             filename: 'index.html',
             favicon: 'public/favicon.ico',
             template: 'public/index.html'
         }),
-
     ],
 
     // When importing a module whose path matches one of the following, just

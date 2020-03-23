@@ -2,6 +2,12 @@ import * as React from 'react';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { makeStyles, ThemeProvider, useTheme, createMuiTheme } from '@material-ui/core/styles';
 import { Typography, CssBaseline } from '@material-ui/core';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link
+} from "react-router-dom";
 import Posts from './posts';
 import Header from './header';
 
@@ -17,7 +23,7 @@ const posts: any = [
 ];
 
 function App() {
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)', { noSsr: true }); 
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)', { noSsr: true });
   // noSSr https://github.com/mui-org/material-ui/issues/14336
   const [darkMode, setDarkMode] = React.useState(prefersDarkMode);
 
@@ -30,11 +36,11 @@ function App() {
       }),
     [darkMode],
   );
-  
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Header setDarkMode={()=> setDarkMode(!darkMode)}></Header>
+      <Header setDarkMode={() => setDarkMode(!darkMode)}></Header>
       <Posts posts={posts} />
     </ThemeProvider>
   );
