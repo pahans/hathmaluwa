@@ -4,7 +4,7 @@ import express from 'express';
 import path from 'path';
 import errorHandler from 'errorhandler';
 import pubSubHubbub from 'pubsubhubbub';
-import { renderToNodeStream } from 'react-dom/server';
+import { renderToString } from 'react-dom/server';
 import React from 'react';
 import Home from '../client/components/Home';
 import { ServerStyleSheets, ThemeProvider } from '@material-ui/core/styles';
@@ -26,7 +26,7 @@ app.use(PUBSUB_PATH, pubsub.listener());
 
 app.get('/', (req, res) =>{
   const sheets = new ServerStyleSheets();
-  const reactComp = renderToNodeStream(sheets.collect(<Home />));
+  const reactComp = renderToString(sheets.collect(<Home />));
   res.render('default', {
     title: 'hello',
     css: sheets,
