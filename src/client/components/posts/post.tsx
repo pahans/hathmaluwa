@@ -25,7 +25,7 @@ export default function Posts({
                                     Word of the Day
                                 </Typography>
                                 <Typography variant="h5" component="h2">
-                                    adadad
+                                    Word of the Day
                                 </Typography>
                                 <Typography color="textSecondary">
                                     adjective
