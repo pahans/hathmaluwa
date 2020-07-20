@@ -48,7 +48,7 @@
     "@types/react": "^16.9.43",
     "@types/react-dom": "^16.9.6",
     "@types/react-router-dom": "^5.1.5",
-    "css-loader": "^3.4.2",
+    "css-loader": "^3.6.0",
     "file-loader": "^6.0.0",
     "html-webpack-plugin": "^4.3.0",
     "mocha": "^7.1.1",
