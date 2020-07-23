@@ -9,6 +9,8 @@ import MenuIcon from '@material-ui/icons/Menu';
 import BrightnessMediumIcon from '@material-ui/icons/BrightnessMedium';
 import * as PropTypes from "prop-types";
 import { InferProps } from "prop-types";
+import { Link as RouterLink } from 'react-router-dom';
+import { Link } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -20,6 +22,9 @@ const useStyles = makeStyles(theme => ({
     title: {
         flexGrow: 1,
     },
+    link: {
+        textDecoration: "none",
+    }
 }));
 
 export default function ButtonAppBar({
@@ -39,7 +44,9 @@ export default function ButtonAppBar({
                     <IconButton aria-label="toggle dark mode" onClick={setDarkMode}>
                         <BrightnessMediumIcon />
                     </IconButton>
-                    <Button color="inherit">Login</Button>
+                    <Link color="primary" component={RouterLink} to="/signup" className={classes.link}>
+                        <Button>Sign Up</Button>
+                    </Link>
                 </Toolbar>
             </AppBar>
         </div>
@@ -49,4 +56,4 @@ export default function ButtonAppBar({
 ButtonAppBar.propTypes = {
     darkMode: PropTypes.bool,
     setDarkMode: PropTypes.func
-} 
+};

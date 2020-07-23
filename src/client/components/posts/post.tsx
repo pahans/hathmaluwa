@@ -2,7 +2,7 @@ import * as React from 'react';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import * as PropTypes from "prop-types";
 import { InferProps } from "prop-types";
-import { Container, Grid, Paper, CardContent, Typography, Card } from '@material-ui/core';
+import { Container, Grid, CardContent, Typography, Card } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {
@@ -39,8 +39,6 @@ export default function Posts({
                     </Grid>
                 </Container>
             </Grid>
-
-
         </div>
     );
 }
@@ -48,4 +46,4 @@ export default function Posts({
 Posts.propTypes = {
     title: PropTypes.string.isRequired,
     summary: PropTypes.string.isRequired,
-} 
+};

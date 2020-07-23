@@ -1,7 +1,6 @@
 import * as React from 'react';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { makeStyles, ThemeProvider, useTheme, createMuiTheme } from '@material-ui/core/styles';
-import { Typography, CssBaseline } from '@material-ui/core';
+import createMuiTheme from '@material-ui/core/styles/createMuiTheme';
 import {
   BrowserRouter as Router,
   Switch,
@@ -10,6 +9,9 @@ import {
 } from "react-router-dom";
 import Posts from './posts';
 import Header from './header';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import { ThemeProvider } from '@material-ui/core';
+import Signup from './signup';
 
 const posts: any = [
   {
@@ -23,7 +25,7 @@ const posts: any = [
 ];
 
 function App() {
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)', { noSsr: true });
+  const prefersDarkMode = !useMediaQuery('(prefers-color-scheme: light)', { noSsr: true });
   // noSSr https://github.com/mui-org/material-ui/issues/14336
   const [darkMode, setDarkMode] = React.useState(prefersDarkMode);
 
@@ -38,11 +40,20 @@ function App() {
   );
 
   return (
+    <Router>
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Header setDarkMode={() => setDarkMode(!darkMode)}></Header>
-      <Posts posts={posts} />
+      <Switch>
+          <Route path="/signup">
+            <Signup />
+          </Route>
+          <Route path="/">
+            <Posts posts={posts} />
+          </Route>
+        </Switch>
     </ThemeProvider>
+    </Router>
   );
 }
 

@@ -1,5 +1,5 @@
 import 'typeface-roboto';
-import App from './components/Home';
+import App from './components/App';
 import * as ReactDOM from 'react-dom';
 import * as React from 'react';
 import 'react-app-polyfill/ie11';
