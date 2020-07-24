@@ -16,29 +16,24 @@ export default function Posts({
     const classes = useStyles({});
     return (
         <div className={classes.root}>
-            <Grid container>
-                <Container maxWidth="md">
-                    <Grid item xs={12}>
-                        <Card className={classes.root} square variant={'outlined'}>
-                            <CardContent>
-                                <Typography color="textSecondary" gutterBottom>
-                                    Word of the Day
-                                </Typography>
-                                <Typography variant="h5" component="h2">
-                                    Word of the Day
-                                </Typography>
-                                <Typography color="textSecondary">
-                                    adjective
-                                </Typography>
-                                <Typography variant="body2" component="p">
-                                    well meaning and kindly.
-                                    {'"a benevolent smile"'}
-                                </Typography>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                </Container>
-            </Grid>
+     
+                    <Card className={classes.root} square variant={'outlined'}>
+                        <CardContent>
+                            <Typography color="textSecondary" gutterBottom>
+                                Word of the Day
+                            </Typography>
+                            <Typography variant="h5" component="h2">
+                                Word of the Day
+                            </Typography>
+                            <Typography color="textSecondary">
+                                adjective
+                            </Typography>
+                            <Typography variant="body2" component="p">
+                                well meaning and kindly.
+                                {'"a benevolent smile"'}
+                            </Typography>
+                        </CardContent>
+                    </Card>
         </div>
     );
 }
