@@ -38,7 +38,7 @@
     "react-app-polyfill": "^1.0.6",
     "react-dom": "^16.13.0",
     "react-router-dom": "^5.2.0",
-    "rss-parser": "^3.8.0",
+    "rss-parser": "^3.9.0",
     "swr": "^0.2.3",
     "ts-node": "^8.10.2",
     "typeface-roboto": "0.0.75",
