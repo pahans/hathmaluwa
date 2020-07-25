@@ -19,6 +19,8 @@ app.set('views', __dirname + '/templates');
 
 app.use('/pubSubHubbub', pubsub.listener());
 
+app.use('/static', express.static(path.join(__dirname+'/../../client_dist/')))
+
 app.get('/*', function (req, res) {
   const sheets = new ServerStyleSheets();
   const context = {};
@@ -33,8 +35,6 @@ app.get('/*', function (req, res) {
     body: reactComp,
   });
 });
-
-app.use('/static', express.static(path.join(__dirname+'/../../client_dist/')))
 
 app.use(errorHandler());
 
