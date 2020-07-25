@@ -6,9 +6,9 @@ import errorHandler from 'errorhandler';
 import { renderToString } from 'react-dom/server';
 import React from 'react';
 import { ServerStyleSheets } from '@material-ui/core/styles';
-import Posts from '../client/components/posts/post';
-import { SignUpRoute } from './routes';
+import App from '../client/components/App';
 import pubsub from './controllers/pubsub';
+import { StaticRouter } from 'react-router-dom';
 
 var mustacheExpress = require('mustache-express');
 
@@ -19,17 +19,20 @@ app.set('views', __dirname + '/templates');
 
 app.use('/pubSubHubbub', pubsub.listener());
 
-app.get('/', function (req, res) {
+app.get('/*', function (req, res) {
   const sheets = new ServerStyleSheets();
-  const reactComp = renderToString(sheets.collect(<Posts />));
+  const context = {};
+  const reactComp = renderToString(sheets.collect(
+    <StaticRouter location={req.url} context={context}>
+      <App />
+    </StaticRouter>
+  ));
   res.render('default', {
     title: 'Home',
     css: sheets,
     body: reactComp,
   });
 });
-
-app.use('/signup', SignUpRoute);
 
 app.use('/static', express.static(path.join(__dirname+'/../../client_dist/')))
 

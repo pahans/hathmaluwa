@@ -1,12 +1,7 @@
 import * as React from 'react';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import createMuiTheme from '@material-ui/core/styles/createMuiTheme';
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link
-} from "react-router-dom";
+import { Switch, Route } from "react-router-dom";
 import Posts from './posts';
 import Header from './header';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -40,20 +35,18 @@ function App() {
   );
 
   return (
-    <Router>
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Header setDarkMode={() => setDarkMode(!darkMode)}></Header>
       <Switch>
-          <Route path="/signup">
-            <Signup />
-          </Route>
-          <Route path="/">
-            <Posts posts={posts} />
-          </Route>
-        </Switch>
+        <Route path="/signup">
+          <Signup />
+        </Route>
+        <Route path="/">
+          <Posts posts={posts} />
+        </Route>
+      </Switch>
     </ThemeProvider>
-    </Router>
   );
 }
 
