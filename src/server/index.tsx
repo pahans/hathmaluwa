@@ -9,6 +9,7 @@ import { ServerStyleSheets } from '@material-ui/core/styles';
 import App from '../client/components/App';
 import pubsub from './controllers/pubsub';
 import { StaticRouter } from 'react-router-dom';
+import graphql from './controllers/graphql';
 
 var mustacheExpress = require('mustache-express');
 
@@ -18,8 +19,8 @@ app.set('view engine', 'mustache');
 app.set('views', __dirname + '/templates');
 
 app.use('/pubSubHubbub', pubsub.listener());
-
-app.use('/static', express.static(path.join(__dirname+'/../../client_dist/')))
+app.use('/api', graphql);
+app.use('/static', express.static(path.join(__dirname+'/../../client_dist/')));
 
 app.get('/*', function (req, res) {
   const sheets = new ServerStyleSheets();
@@ -45,4 +46,4 @@ app.listen(PORT, () => {
   console.log('Press Ctrl+C to quit.');
 });
 
-module.exports = app;
+export default app;
