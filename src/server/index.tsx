@@ -9,6 +9,7 @@ import { ServerStyleSheets } from '@material-ui/core/styles';
 import App from '../client/components/App';
 import pubsub from './controllers/pubsub';
 import { StaticRouter } from 'react-router-dom';
+import { getRSSFeedUrl } from './controllers/services/rssFinder/rssFinder';
 import graphql from './controllers/graphql';
 
 var mustacheExpress = require('mustache-express');
@@ -19,6 +20,15 @@ app.set('view engine', 'mustache');
 app.set('views', __dirname + '/templates');
 
 app.use('/pubSubHubbub', pubsub.listener());
+
+// TODO: manage server API handling seperatly from client URL handling
+// RSS feed url fetcher api.
+app.get('/api/getFeedUrl', function (req, res) {
+  const blogUrl: string = req.param("url");
+  const feedUrl: string = getRSSFeedUrl(blogUrl);
+  res.send(feedUrl);
+});
+
 app.use('/api', graphql);
 app.use('/static', express.static(path.join(__dirname+'/../../client_dist/')));
 

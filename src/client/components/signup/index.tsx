@@ -9,6 +9,7 @@ import CssBaseline from '@material-ui/core/CssBaseline/CssBaseline';
 import TextField from '@material-ui/core/TextField/TextField';
 import Button from '@material-ui/core/Button/Button';
 import { Container, FormControlLabel, Checkbox, FormGroup } from '@material-ui/core';
+import useSWR from 'swr';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -47,6 +48,17 @@ const url = 'https://pokeapi.co/api/v2/pokemon';
 function Signup() {
     const classes = useStyles();
     const [url, setUrl] = useState("");
+    const [feed, setFeed] = useState("");
+    const fetcher = (url: string) => fetch(url).then((res) => {
+        res.text().then((text) => setFeed(text ? text : ""));
+    });
+
+    const handleBlur = (e: any) => {
+        const url = e.target.value;
+        // const { data, error } = useSWR('http://localhost:8080/api/getFeedUrl/url', fetcher);
+        fetcher('http://localhost:8080/api/getFeedUrl?url=' + url);
+    };
+
 
     return (
         <div className={classes.root}>
@@ -76,6 +88,7 @@ function Signup() {
                                     const url = e.target.value;
                                     setUrl(url);
                                 }}
+                                onBlur={handleBlur}
                             />
                             <TextField
                                 className={classes.textField}
@@ -84,12 +97,12 @@ function Signup() {
                                 variant="outlined"
                                 required
                                 fullWidth
-                                value={url}
+                                value={feed}
                                 id="feed-url"
                                 label="Feed URL"
                                 onChange={(e) => {
                                     const url = e.target.value;
-                                    setUrl(url);
+                                    setFeed(url);
                                 }}
                             />
                             <TextField
@@ -143,7 +156,7 @@ function Signup() {
                                     label="I agree with terms and conditions"
                                 />
                             </FormGroup>
-                            <Button 
+                            <Button
                                 variant="contained"
                                 color="primary"
                                 className={classes.button}
