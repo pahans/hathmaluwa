@@ -46,9 +46,7 @@
     "react-router-dom": "^5.2.0",
     "rss-parser": "^3.9.0",
     "swr": "^0.2.3",
-    "ts-node-dev": "^1.0.0-pre.56",
-    "typeface-roboto": "0.0.75",
-    "typescript": "^3.9.7"
+    "typeface-roboto": "0.0.75"
   },
   "devDependencies": {
     "@babel/core": "^7.10.5",
@@ -78,6 +76,8 @@
     "swr": "^0.2.3",
     "ts-loader": "^8.0.1",
     "ts-mocha": "^7.0.0",
+    "ts-node-dev": "^1.0.0-pre.56",
+    "typescript": "^3.9.7",
     "webpack": "^4.44.0",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0"
