@@ -17,7 +17,7 @@ var mustacheExpress = require('mustache-express');
 const app = express();
 app.engine('mustache', mustacheExpress());
 app.set('view engine', 'mustache');
-app.set('views', __dirname + '/templates');
+app.set('views', path.join(__dirname, '/../../src/server/templates'));
 
 app.use('/pubSubHubbub', pubsub.listener());
 
@@ -30,7 +30,7 @@ app.get('/api/getFeedUrl', function (req, res) {
 });
 
 app.use('/api', graphql);
-app.use('/static', express.static(path.join(__dirname + '/../../client_dist/')));
+app.use('/static', express.static(path.join(__dirname, '/../../static')));
 
 app.get('/*', function (req, res) {
   const sheets = new ServerStyleSheets();
