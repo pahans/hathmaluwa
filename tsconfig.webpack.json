@@ -1,0 +1,10 @@
+{
+    "extends": "./tsconfig.json",
+    "exclude": [
+        "src/server"
+    ],
+    "compilerOptions": {
+        "outDir": "static",
+        "noEmit": false
+    }
+}

@@ -14,10 +14,12 @@
   },
   "scripts": {
     "dev:client": "webpack --watch",
-    "dev:server": "nodemon -e ts,tsx",
-    "build": "tsc -p . && npm run build:client",
-    "build:client": "webpack",
-    "start": "ts-node src/server/index.tsx",
+    "dev:server": "ts-node-dev src/server/index.tsx",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "build:server": "tsc -p .",
+    "build": "npm run build:server && npm run build:client",
+    "build:client": "webpack -p",
+    "start": "node dist/src/server/index.js",
     "test": "ts-mocha test/*.test.ts --exit",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
@@ -29,6 +31,7 @@
     "@types/prop-types": "^15.7.3",
     "axios": "^0.19.2",
     "clean-webpack-plugin": "^3.0.0",
+    "concurrently": "^5.2.0",
     "errorhandler": "^1.5.1",
     "express": "^4.17.1",
     "express-graphql": "^0.11.0",
@@ -43,7 +46,7 @@
     "react-router-dom": "^5.2.0",
     "rss-parser": "^3.9.0",
     "swr": "^0.2.3",
-    "ts-node": "^8.10.2",
+    "ts-node-dev": "^1.0.0-pre.56",
     "typeface-roboto": "0.0.75",
     "typescript": "^3.9.7"
   },
@@ -68,16 +71,15 @@
     "file-loader": "^6.0.0",
     "html-webpack-plugin": "^4.3.0",
     "mocha": "^7.2.0",
-    "nodemon": "^2.0.4",
     "react-docgen-typescript-loader": "^3.7.2",
     "source-map-loader": "^0.2.4",
     "style-loader": "^1.2.1",
     "supertest": "^4.0.2",
+    "swr": "^0.2.3",
     "ts-loader": "^8.0.1",
     "ts-mocha": "^7.0.0",
     "webpack": "^4.44.0",
     "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.0",
-    "swr": "^0.2.3"
+    "webpack-dev-server": "^3.11.0"
   }
 }

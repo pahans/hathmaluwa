@@ -30,7 +30,7 @@ app.get('/api/getFeedUrl', function (req, res) {
 });
 
 app.use('/api', graphql);
-app.use('/static', express.static(path.join(__dirname+'/../../client_dist/')));
+app.use('/static', express.static(path.join(__dirname + '/../../client_dist/')));
 
 app.get('/*', function (req, res) {
   const sheets = new ServerStyleSheets();

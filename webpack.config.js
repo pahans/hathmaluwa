@@ -10,7 +10,7 @@ module.exports = {
     },
 
     devServer: {
-        contentBase: path.join(__dirname, 'client_dist'),
+        contentBase: path.join(__dirname, 'static'),
         compress: true,
         historyApiFallback: true,
         port: 9000
@@ -25,7 +25,7 @@ module.exports = {
     },
 
     output: {
-        path: path.join(__dirname, 'client_dist'),
+        path: path.join(__dirname,'static'),
         publicPath: '/static/',
         filename: 'bundle.js',
         libraryTarget: 'umd',
@@ -36,11 +36,10 @@ module.exports = {
             {
                 test: /\.ts(x?)$/,
                 exclude: /node_modules/,
-                use: [
-                    {
-                        loader: "ts-loader"
-                    }
-                ]
+                loader: "ts-loader",
+                options: {
+                    configFile: 'tsconfig.webpack.json'
+                }
             },
             // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
             {
