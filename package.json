@@ -20,7 +20,7 @@
     "build": "npm run build:server && npm run build:client",
     "gcp-build": "npm run build",
     "build:client": "webpack -p",
-    "start": "node dist/src/server/index.js",
+    "start": "node dist/server/index.js",
     "test": "ts-mocha test/*.test.ts --exit",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
