@@ -18,15 +18,8 @@ export default function Posts({
         <div className={classes.root}>
             <Card className={classes.root} square variant={'outlined'}>
                 <CardContent>
-                    <Typography color="textSecondary" gutterBottom>
-                        Word of the Day
-                            </Typography>
-                    <Typography variant="h5" component="h2">
-                        Word of the Day
-                            </Typography>
-                    <Typography color="textSecondary">
-                        adjective
-                            </Typography>
+                    <Typography variant="h5" component="h2">{title}</Typography>
+                    <Typography color="textSecondary">adjective</Typography>
                     <Typography variant="body2" component="p">
                         well meaning and kindly.
                                 {'"a benevolent smile"'}

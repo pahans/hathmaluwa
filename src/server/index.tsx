@@ -10,7 +10,7 @@ import App from '../client/components/App';
 import pubsub from './controllers/pubsub';
 import { StaticRouter } from 'react-router-dom';
 import { getRSSFeedUrl } from './controllers/services/rssFinder/rssFinder';
-import graphql from './controllers/graphql';
+import graphql from './models/graphql';
 
 var mustacheExpress = require('mustache-express');
 
