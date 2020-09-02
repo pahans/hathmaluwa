@@ -18,6 +18,7 @@
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "build:server": "tsc -p .",
     "build": "npm run build:server && npm run build:client",
+    "build:client": "webpack -p",
     "gcp-build": "npm run build",
     "start": "node dist/server/index.js",
     "test": "ts-mocha test/*.test.ts --exit",
