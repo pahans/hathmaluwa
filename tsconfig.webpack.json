@@ -5,6 +5,7 @@
     ],
     "compilerOptions": {
         "outDir": "static",
+        "target": "es5",
         "noEmit": false
     }
 }

@@ -6,9 +6,9 @@ import errorHandler from 'errorhandler';
 import { renderToString } from 'react-dom/server';
 import React from 'react';
 import { ServerStyleSheets } from '@material-ui/core/styles';
+import { StaticRouter } from 'react-router-dom';
 import App from '../client/components/App';
 import pubsub from './controllers/pubsub';
-import { StaticRouter } from 'react-router-dom';
 import { getRSSFeedUrl } from './controllers/services/rssFinder/rssFinder';
 import graphql from './models/graphql';
 
