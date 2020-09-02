@@ -1,9 +1,13 @@
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const { CheckerPlugin } = require('awesome-typescript-loader');
 const path = require('path');
 
+
+const TEMPLATE_DIR = path.resolve(__dirname, './src/server/templates');
+
 module.exports = {
-    mode: "production",
+    mode: "development",
 
     entry: {
         client: './src/client/index.tsx',
@@ -26,7 +30,7 @@ module.exports = {
 
     output: {
         path: path.join(__dirname,'static'),
-        publicPath: '/static/',
+        publicPath: '/',
         filename: 'bundle.js',
         libraryTarget: 'umd',
     },
@@ -36,9 +40,10 @@ module.exports = {
             {
                 test: /\.ts(x?)$/,
                 exclude: /node_modules/,
-                loader: "ts-loader",
+                loader: 'awesome-typescript-loader',
                 options: {
-                    configFile: 'tsconfig.webpack.json'
+                    configFileName: 'tsconfig.webpack.json',
+                    useCache: true
                 }
             },
             // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
@@ -64,10 +69,11 @@ module.exports = {
     plugins: [
         new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({
-            filename: 'index.html',
             favicon: 'public/favicon.ico',
-            template: 'public/index.html'
+            template: path.join(TEMPLATE_DIR, 'default.mustache'),
+            filename: "index.html",
         }),
+        new CheckerPlugin()
     ],
 
     // When importing a module whose path matches one of the following, just

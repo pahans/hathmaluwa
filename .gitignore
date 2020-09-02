@@ -2,3 +2,4 @@ node_modules/
 dist/
 client_dist/
 static/
+.awcache/
