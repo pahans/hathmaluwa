@@ -72,7 +72,7 @@
     "@types/react-router-dom": "^5.1.5",
     "awesome-typescript-loader": "^5.2.1",
     "babel-loader": "^8.1.0",
-    "css-loader": "^3.6.0",
+    "css-loader": "^5.0.0",
     "file-loader": "^6.0.0",
     "html-webpack-plugin": "^4.3.0",
     "mocha": "^7.2.0",
