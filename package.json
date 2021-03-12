@@ -49,7 +49,7 @@
     "react-dom": "^16.13.0",
     "react-router-dom": "^5.2.0",
     "rss-parser": "^3.9.0",
-    "swr": "^0.2.3",
+    "swr": "^0.5.2",
     "typeface-roboto": "0.0.75"
   },
   "devDependencies": {
@@ -80,7 +80,7 @@
     "source-map-loader": "^0.2.4",
     "style-loader": "^1.2.1",
     "supertest": "^4.0.2",
-    "swr": "^0.2.3",
+    "swr": "^0.5.2",
     "ts-loader": "^8.0.1",
     "ts-mocha": "^7.0.0",
     "ts-node-dev": "^1.0.0-pre.56",
