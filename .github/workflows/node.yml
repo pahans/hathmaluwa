@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [10]
+        node-version: [16]
 
     steps:
     - uses: actions/checkout@v1
@@ -23,14 +23,13 @@ jobs:
     - uses: actions/cache@v1
       with:
         path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package.json') }}
         restore-keys: |
           ${{ runner.os }}-node-
-    - name: npm install, build, and test
+    - name: npm yarn, build
       run: |
-        npm ci
-        npm run build --if-present
-        npm test
+        yarn
+        yarn build
       env:
         CI: true
     - name: Deploy

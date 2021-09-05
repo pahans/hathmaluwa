@@ -1,4 +1,4 @@
 # [START gae_quickstart_yaml]
-runtime: nodejs10
+runtime: nodejs14
 instance_class: F1
 # [END gae_quickstart_yaml]
