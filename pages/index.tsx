@@ -1,4 +1,5 @@
 import Head from 'next/head'
+import { Flex, Heading, Text } from '@radix-ui/themes';
 import NavBar from './components/nav'
 
 export default function Home() {
@@ -10,25 +11,23 @@ export default function Home() {
       </Head>
 
       <main>
-      <NavBar />
-        <h1 className="text-6xl font-bold">
-          Hello
-        </h1>
-        <p>
-          world
-        </p>
+        <NavBar />
+        <Heading size="9">Hello</Heading>
+        <Text as="p">world</Text>
       </main>
-      <footer className="flex items-center justify-center w-full h-24 border-t">
-        <a
-          className="flex items-center justify-center"
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className="h-4 ml-2" />
-        </a>
-      </footer>
+      <Flex asChild align="center" justify="center" width="100%" height="6rem" style={{ borderTop: '1px solid var(--gray-a5)' }}>
+        <footer>
+          <a
+            style={{ display: 'flex', alignItems: 'center' }}
+            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Powered by{' '}
+            <img src="/vercel.svg" alt="Vercel Logo" style={{ height: '1rem', marginLeft: '0.5rem' }} />
+          </a>
+        </footer>
+      </Flex>
     </div>
   )
 }
