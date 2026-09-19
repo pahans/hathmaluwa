@@ -9,29 +9,29 @@ datasource db {
 }
 
 model Blog {
-  id          String     @id @default(uuid()) @db.Uuid
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   url         String     @unique
   name        String
   author      String
   authorEmail String     @map("author_email")
-  createdAt   DateTime   @default(now()) @map("created_at")
-  updatedAt   DateTime   @updatedAt @map("updated_at")
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime   @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
   posts       BlogPost[]
 
   @@map("blogs")
 }
 
 model BlogPost {
-  id        String   @id @default(uuid()) @db.Uuid
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   blogId    String   @map("blog_id") @db.Uuid
   blog      Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
   postTitle String   @map("post_title")
   url       String   @unique
-  timestamp DateTime
+  timestamp DateTime @db.Timestamptz(3)
   summary   String?
   thumbnail String?
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   @@map("blog_posts")
 }

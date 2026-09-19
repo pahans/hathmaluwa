@@ -32,6 +32,8 @@ Before Task 5 can be verified end-to-end, you need a real Supabase project:
 4. Copy the **Direct connection** URI (port 5432) — this is `DIRECT_URL`.
 5. Create `.env` in the repo root (it's gitignored) with both values, following `.env.example` from Task 4.
 
+**Note on `prisma migrate dev`:** it creates and drops a temporary "shadow database" against `DIRECT_URL` to detect schema drift. If your Supabase project's database role lacks permission to create databases, this fails with error `P3014`. If that happens, either grant the role that permission, or fall back to `npx prisma migrate diff` (to generate the SQL) followed by `npx prisma migrate deploy` (which applies migrations without needing a shadow database).
+
 Tasks 1-4 don't require real credentials (schema authoring, validation, and type-checking work with placeholder values). Task 5's migration step does.
 
 ---
