@@ -7,7 +7,13 @@ module.exports = {
   theme: {
     colors: {
       teal: colors.teal,
-      white: colors.white
+      white: colors.white,
+      black: colors.black,
+      gray: colors.gray,
+      red: colors.red,
+      orange: colors.orange,
+      blue: colors.blue,
+      transparent: colors.transparent,
     },
     extend: {},
   },
