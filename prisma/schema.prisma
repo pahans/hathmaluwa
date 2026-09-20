@@ -9,16 +9,31 @@ datasource db {
 }
 
 model Blog {
-  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  url         String     @unique
-  name        String
-  author      String
-  authorEmail String     @map("author_email")
-  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt   DateTime   @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
-  posts       BlogPost[]
+  id                 String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  url                String             @unique
+  name               String
+  author             String
+  authorEmail        String             @map("author_email")
+  feedUrl            String?            @map("feed_url")
+  hubUrl             String?            @map("hub_url")
+  subscriptionSecret String?            @map("subscription_secret")
+  subscriptionStatus SubscriptionStatus @default(pending) @map("subscription_status")
+  leaseExpiresAt     DateTime?          @map("lease_expires_at") @db.Timestamptz(3)
+  lastVerifiedAt     DateTime?          @map("last_verified_at") @db.Timestamptz(3)
+  createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  posts              BlogPost[]
 
   @@map("blogs")
+}
+
+enum SubscriptionStatus {
+  pending
+  active
+  expiring
+  failed
+
+  @@map("subscription_status")
 }
 
 model BlogPost {
