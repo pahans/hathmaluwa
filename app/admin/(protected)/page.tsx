@@ -102,7 +102,11 @@ function BlogTable({ blogs }: { blogs: BlogWithCount[] }) {
         {blogs.map((blog) => (
           <Table.Row key={blog.id}>
             <Table.RowHeaderCell>
-              <Text weight="medium">{blog.name}</Text>
+              <Text weight="medium">
+                <a href={blog.url} target="_blank" rel="noreferrer noopener">
+                  {blog.name}
+                </a>
+              </Text>
               <br />
               <Text size="1" color="gray">
                 {blog.author} · {blog.authorEmail}
