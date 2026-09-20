@@ -10,6 +10,8 @@
     "backfill-blog": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/backfill-blog.ts",
     "websub:renew": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/renew-subscriptions.ts",
     "poll-unsupported-blogs": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/poll-unsupported-blogs.ts",
+    "approve-blog": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/approve-blog.ts",
+    "list-pending-blogs": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/list-pending-blogs.ts",
     "test:websub-pipeline": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/test-websub-pipeline.ts"
   },
   "engines": {

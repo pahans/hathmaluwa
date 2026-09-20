@@ -25,21 +25,26 @@ export default async function Home({
   const requestedPage = typeof params.page === 'string' ? parseInt(params.page, 10) : 1
 
   const latest = await prisma.blogPost.findMany({
+    where: { blog: { approved: true } },
     include: { blog: true },
     orderBy: { timestamp: 'desc' },
     take: 30,
   })
 
   // A search replaces the feed only. The popular-posts sidebar always draws from the latest posts.
-  const where = q
-    ? {
-        OR: [
-          { postTitle: { contains: q, mode: 'insensitive' as const } },
-          { summary: { contains: q, mode: 'insensitive' as const } },
-          { blog: { name: { contains: q, mode: 'insensitive' as const } } },
-        ],
-      }
-    : {}
+  // Unapproved blogs (pending /signup review) never show up here or in search.
+  const where = {
+    blog: { approved: true },
+    ...(q
+      ? {
+          OR: [
+            { postTitle: { contains: q, mode: 'insensitive' as const } },
+            { summary: { contains: q, mode: 'insensitive' as const } },
+            { blog: { name: { contains: q, mode: 'insensitive' as const } } },
+          ],
+        }
+      : {}),
+  }
 
   const matchCount = await prisma.blogPost.count({ where })
   const totalPages = Math.max(1, Math.ceil(matchCount / POSTS_PER_PAGE))

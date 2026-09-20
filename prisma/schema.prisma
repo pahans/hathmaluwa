@@ -14,6 +14,7 @@ model Blog {
   name               String
   author             String
   authorEmail        String             @map("author_email")
+  approved           Boolean            @default(true) @map("approved")
   feedUrl            String?            @map("feed_url")
   hubUrl             String?            @map("hub_url")
   subscriptionSecret String?            @map("subscription_secret")

@@ -1,4 +1,5 @@
 import { XMLParser } from 'fast-xml-parser'
+import { safeFetch } from './safeFetch'
 
 export interface DiscoveredFeed {
   feedUrl: string
@@ -20,7 +21,7 @@ function toArray<T>(value: T | T[] | undefined | null): T[] {
 // If `blogUrl` is already a feed, returns it as-is. Otherwise fetches the page
 // and follows the first <link rel="alternate" type=".../rss|atom+xml"> tag.
 export async function discoverFeedUrl(blogUrl: string): Promise<string> {
-  const res = await fetch(blogUrl)
+  const res = await safeFetch(blogUrl)
   if (!res.ok) throw new Error(`Failed to fetch ${blogUrl}: ${res.status}`)
 
   const contentType = res.headers.get('content-type') ?? ''
@@ -44,7 +45,7 @@ export async function discoverFeedUrl(blogUrl: string): Promise<string> {
 // Reads the feed's own <link rel="hub"> / <link rel="self"> tags, per the
 // WebSub spec's discovery requirement.
 export async function discoverHub(feedUrl: string): Promise<DiscoveredFeed> {
-  const res = await fetch(feedUrl)
+  const res = await safeFetch(feedUrl)
   if (!res.ok) throw new Error(`Failed to fetch feed ${feedUrl}: ${res.status}`)
 
   const xml = await res.text()

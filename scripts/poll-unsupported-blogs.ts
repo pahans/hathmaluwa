@@ -1,5 +1,5 @@
 import prisma from '../lib/prisma'
-import { backfillBlog } from './backfill-blog'
+import { backfillBlog } from '../lib/websub/backfillBlog'
 
 // Blogs whose feed has no WebSub hub (subscriptionStatus 'unsupported') never
 // get a push from the callback route or scripts/renew-subscriptions.ts, so

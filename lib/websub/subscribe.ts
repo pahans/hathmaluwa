@@ -1,4 +1,5 @@
 import { SITE_URL } from '../site'
+import { safeFetch } from './safeFetch'
 
 // Hubs may grant a shorter lease than requested; we ask for 10 days and rely
 // on scripts/renew-subscriptions.ts to renew well before any lease expires.
@@ -29,7 +30,7 @@ export async function sendSubscription({
     'hub.lease_seconds': String(REQUESTED_LEASE_SECONDS),
   })
 
-  const res = await fetch(hubUrl, {
+  const res = await safeFetch(hubUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body,

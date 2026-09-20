@@ -18,7 +18,7 @@ import { discoverFeedUrl, discoverHub, NoHubAdvertisedError } from '../lib/websu
 import { generateSubscriptionSecret } from '../lib/websub/secret'
 import { sendSubscription, callbackUrl } from '../lib/websub/subscribe'
 import { GET as callbackGet, POST as callbackPost } from '../app/api/websub/callback/route'
-import { backfillBlog } from './backfill-blog'
+import { backfillBlog } from '../lib/websub/backfillBlog'
 
 function feedXml(hubUrl: string, selfUrl: string, entries: { url: string; title: string; pubDate: string }[]) {
   return `<?xml version="1.0"?>

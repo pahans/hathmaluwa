@@ -2,7 +2,8 @@ import { readFileSync } from 'fs'
 import { XMLParser } from 'fast-xml-parser'
 import { decode } from 'he'
 import prisma from '../lib/prisma'
-import { addBlog } from './add-blog'
+import { onboardBlog } from '../lib/websub/onboardBlog'
+import { safeFetch } from '../lib/websub/safeFetch'
 
 // Onboards many blogs at once from a plain text file of feed URLs (one per
 // line, '#' comments allowed). We often only have the feed URL for a legacy
@@ -20,7 +21,7 @@ function textOf(value: unknown): string | null {
 }
 
 async function fetchFeedTitle(feedUrl: string): Promise<string> {
-  const res = await fetch(feedUrl, { redirect: 'follow' })
+  const res = await safeFetch(feedUrl)
   if (!res.ok) throw new Error(`Failed to fetch ${feedUrl}: ${res.status}`)
 
   const doc = parser.parse(await res.text())
@@ -52,7 +53,7 @@ async function main() {
     try {
       const title = await fetchFeedTitle(feedUrl)
       const hostname = new URL(feedUrl).hostname
-      await addBlog(feedUrl, title, title, `unknown@${hostname}`)
+      await onboardBlog(feedUrl, title, title, `unknown@${hostname}`)
       results.push({ feedUrl, ok: true })
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
