@@ -1,7 +1,11 @@
-import Head from 'next/head'
-import Layout from '../components/layout'
-import CopyCode from '../components/copy-code'
-import { SITE_URL } from '../lib/site'
+import type { Metadata } from 'next'
+import Layout from '../../components/layout'
+import CopyCode from '../../components/copy-code'
+import { SITE_URL } from '../../lib/site'
+
+export const metadata: Metadata = {
+  title: 'Badge - Hathmaluwa',
+}
 
 // Files live in public/badges. Blog owners paste the snippet into their own site, so it uses absolute URLs.
 const BADGES = [
@@ -17,11 +21,6 @@ function embedCode(file: string): string {
 export default function Badge() {
   return (
     <Layout>
-      <Head>
-        <title>Badge - Hathmaluwa</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
       <main className="hm-wrap">
         <div className="hm-badge-head">
           <h1>Badge</h1>

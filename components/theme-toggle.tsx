@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useState } from 'react'
 
 type Theme = 'light' | 'dark'
@@ -29,7 +31,7 @@ function hasSavedChoice(): boolean {
   }
 }
 
-// The saved choice is applied before first paint by the inline script in pages/_document.tsx.
+// The saved choice is applied before first paint by the inline script in app/layout.tsx.
 export default function ThemeToggle() {
   const [theme, setTheme] = useState<Theme | null>(null)
 
