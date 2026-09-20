@@ -49,10 +49,54 @@ function plainTextExcerpt(html: string, maxLength = MAX_SUMMARY_LENGTH): string 
   return text.slice(0, maxLength).replace(/\s+\S*$/, '') + '…'
 }
 
+// Below this size (in either dimension), an image is treated as an icon/
+// spacer/tracking-pixel rather than a genuine thumbnail candidate.
+const MIN_THUMBNAIL_DIMENSION = 100
+
+// Filenames/paths that give away a small decorative image regardless of
+// any declared width/height (many themes don't bother declaring size).
+const ICON_LIKE_PATTERN = /icon|avatar|gravatar|logo|emoji|smiley|badge|spacer|pixel|1x1/i
+
+function isTooSmall(width: string | undefined, height: string | undefined): boolean {
+  const w = width ? parseInt(width, 10) : NaN
+  const h = height ? parseInt(height, 10) : NaN
+  return (Number.isFinite(w) && w < MIN_THUMBNAIL_DIMENSION) || (Number.isFinite(h) && h < MIN_THUMBNAIL_DIMENSION)
+}
+
 // Feeds that embed HTML content often carry their lead image inline instead
-// of a separate <media:thumbnail>/enclosure - fall back to the first <img>.
+// of a separate <media:thumbnail>/enclosure. Scan every <img> rather than
+// just the first one, since posts often lead with a small icon/badge before
+// the real hero image - skip anything that looks like an icon or declares
+// itself smaller than MIN_THUMBNAIL_DIMENSION, preferring the largest
+// declared size among what's left.
 function firstImageUrl(html: string): string | null {
-  return html.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1] ?? null
+  const candidates: { src: string; area: number }[] = []
+  const imgPattern = /<img\b([^>]*)>/gi
+  let match: RegExpExecArray | null
+
+  while ((match = imgPattern.exec(html))) {
+    const attrs = match[1]
+    const src = attrs.match(/\bsrc=["']([^"']+)["']/i)?.[1]
+    if (!src) continue
+
+    const width = attrs.match(/\bwidth=["']?(\d+)/i)?.[1]
+    const height = attrs.match(/\bheight=["']?(\d+)/i)?.[1]
+
+    if (ICON_LIKE_PATTERN.test(src) || isTooSmall(width, height)) continue
+
+    const area = (width ? parseInt(width, 10) : 0) * (height ? parseInt(height, 10) : 0)
+    candidates.push({ src, area })
+  }
+
+  if (candidates.length === 0) {
+    // Nothing passed the filter - fall back to the very first <img>, since a
+    // false-positive filter is worse than a possibly-small thumbnail.
+    return html.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1] ?? null
+  }
+
+  // Prefer the candidate with the largest declared area; undeclared sizes
+  // (area 0) keep their original document order via a stable sort.
+  return candidates.reduce((best, candidate) => (candidate.area > best.area ? candidate : best)).src
 }
 
 // Parses either an Atom feed (<feed><entry>) or an RSS 2.0 feed
@@ -97,12 +141,14 @@ function parseAtomEntry(entry: Record<string, any>): ParsedFeedEntry | null {
 
 function atomThumbnail(entry: Record<string, any>, links: Record<string, any>[]): string | null {
   const mediaThumbnail = entry['media:thumbnail']
-  if (mediaThumbnail?.['@_url']) return mediaThumbnail['@_url']
+  if (mediaThumbnail?.['@_url'] && !isTooSmall(mediaThumbnail['@_width'], mediaThumbnail['@_height'])) {
+    return mediaThumbnail['@_url']
+  }
 
   const imageEnclosure = links.find(
     (link) => link['@_rel'] === 'enclosure' && String(link['@_type'] ?? '').startsWith('image/'),
   )
-  return imageEnclosure?.['@_href'] ?? null
+  return imageEnclosure?.['@_href'] ?? mediaThumbnail?.['@_url'] ?? null
 }
 
 function parseRssItem(item: Record<string, any>): ParsedFeedEntry | null {
@@ -113,6 +159,11 @@ function parseRssItem(item: Record<string, any>): ParsedFeedEntry | null {
   if (!url || !title || !pubDate) return null
 
   const rawSummary = decodedTextOf(item.description)
+  const mediaThumbnail = item['media:thumbnail']
+  const mediaThumbnailUrl =
+    mediaThumbnail?.['@_url'] && !isTooSmall(mediaThumbnail['@_width'], mediaThumbnail['@_height'])
+      ? mediaThumbnail['@_url']
+      : null
 
   return {
     title,
@@ -120,6 +171,10 @@ function parseRssItem(item: Record<string, any>): ParsedFeedEntry | null {
     timestamp: new Date(pubDate),
     summary: rawSummary ? plainTextExcerpt(rawSummary) : null,
     thumbnail:
-      item.enclosure?.['@_url'] ?? item['media:thumbnail']?.['@_url'] ?? (rawSummary ? firstImageUrl(rawSummary) : null),
+      item.enclosure?.['@_url'] ??
+      mediaThumbnailUrl ??
+      (rawSummary ? firstImageUrl(rawSummary) : null) ??
+      mediaThumbnail?.['@_url'] ??
+      null,
   }
 }
