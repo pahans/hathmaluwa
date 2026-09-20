@@ -1,35 +1,3 @@
-# Quickstart for Node.js in the App Engine standard environment
-
-This is the sample application for the
-[Quickstart for Node.js in the App Engine standard environment][tutorial]
-tutorial found in the [Google App Engine Node.js standard environment][appengine]
-documentation.
-
-* [Setup](#setup)
-* [Running locally](#running-locally)
-* [Deploying to App Engine](#deploying-to-app-engine)
-* [Running the tests](#running-the-tests)
-
-## Setup
-
-Before you can run or deploy, you need to do the following:
-
-1.  Install dependencies:
-
-    pnpm install
-
-## Running locally
-
-    pnpm start
-
-## Deploying to App Engine
-
-    gcloud app deploy
-
-## Running the tests
-
-    pnpm test
-
 # Next.js + Tailwind CSS Example
 
 This example shows how to use [Tailwind CSS](https://tailwindcss.com/) [(v2.2)](https://blog.tailwindcss.com/tailwindcss-2-2) with Next.js. It follows the steps outlined in the official [Tailwind docs](https://tailwindcss.com/docs/guides/nextjs).
