@@ -28,12 +28,6 @@ export async function onboardBlog(
 ) {
   const { approved = true, feedUrlOverride } = options
 
-  const blog = await prisma.blog.upsert({
-    where: { url: blogUrl },
-    update: { name, author, authorEmail },
-    create: { url: blogUrl, name, author, authorEmail, approved },
-  })
-
   const feedUrl = feedUrlOverride ?? (await discoverFeedUrl(blogUrl))
 
   let topicUrl = feedUrl
@@ -50,9 +44,28 @@ export async function onboardBlog(
     console.log(`${blogUrl}: no WebSub hub advertised, falling back to polling.`)
   }
 
-  await prisma.blog.update({
-    where: { id: blog.id },
-    data: {
+  // The Blog row is only created once discovery above has confirmed blogUrl
+  // resolves to a real, fetchable feed - so a bad URL, an unreachable site,
+  // or an SSRF-guard rejection (all reachable from the public, unauthenticated
+  // /signup form) throws before anything is persisted, instead of leaving a
+  // stub row with attacker-supplied name/author/authorEmail behind.
+  const blog = await prisma.blog.upsert({
+    where: { url: blogUrl },
+    update: {
+      name,
+      author,
+      authorEmail,
+      feedUrl: topicUrl,
+      hubUrl,
+      subscriptionSecret,
+      subscriptionStatus: hubUrl ? 'pending' : 'unsupported',
+    },
+    create: {
+      url: blogUrl,
+      name,
+      author,
+      authorEmail,
+      approved,
       feedUrl: topicUrl,
       hubUrl,
       subscriptionSecret,
