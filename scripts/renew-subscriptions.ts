@@ -1,9 +1,12 @@
 import prisma from '../lib/prisma'
 import { sendSubscription } from '../lib/websub/subscribe'
 
-// Renews any WebSub subscription whose lease expires within the next 48h.
-// Re-sending 'subscribe' to the same hub/topic/callback renews the lease per
-// the WebSub spec; the hub will re-verify via a GET challenge as usual.
+// Renews any WebSub subscription whose lease expires within the next 48h,
+// and retries any that previously failed to subscribe (e.g. a hub returning
+// a transient error) - those have no leaseExpiresAt to compare against, so
+// they'd never be picked up otherwise. Re-sending 'subscribe' to the same
+// hub/topic/callback renews the lease per the WebSub spec; the hub will
+// re-verify via a GET challenge as usual.
 const RENEWAL_WINDOW_MS = 48 * 60 * 60 * 1000
 
 async function main() {
@@ -12,7 +15,7 @@ async function main() {
       hubUrl: { not: null },
       feedUrl: { not: null },
       subscriptionSecret: { not: null },
-      leaseExpiresAt: { lt: new Date(Date.now() + RENEWAL_WINDOW_MS) },
+      OR: [{ subscriptionStatus: 'failed' }, { leaseExpiresAt: { lt: new Date(Date.now() + RENEWAL_WINDOW_MS) } }],
     },
   })
 

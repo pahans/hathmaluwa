@@ -8,7 +8,7 @@ import { backfillBlog } from './backfill-blog'
 // hub, or - if it doesn't advertise one - marks it 'unsupported' so
 // scripts/poll-unsupported-blogs.ts picks it up instead. Either way, does a
 // one-time backfill so the feed isn't empty until the next update.
-async function addBlog(blogUrl: string, name: string, author: string, authorEmail: string) {
+export async function addBlog(blogUrl: string, name: string, author: string, authorEmail: string) {
   const blog = await prisma.blog.upsert({
     where: { url: blogUrl },
     update: { name, author, authorEmail },
@@ -52,8 +52,11 @@ async function addBlog(blogUrl: string, name: string, author: string, authorEmai
       })
       console.log(`Subscribe request sent to ${hubUrl} for ${topicUrl}. Awaiting hub verification.`)
     } catch (error) {
+      // The hub rejecting/erroring on subscribe (e.g. a transient 503) is not
+      // a reason to skip the backfill below - scripts/renew-subscriptions.ts
+      // will retry 'failed' subscriptions on its next run.
       await prisma.blog.update({ where: { id: blog.id }, data: { subscriptionStatus: 'failed' } })
-      throw error
+      console.error(`Subscribe request to ${hubUrl} failed, will retry later: ${error}`)
     }
   }
 
@@ -71,9 +74,11 @@ async function main() {
   await addBlog(blogUrl, name, author, authorEmail)
 }
 
-main()
-  .catch((e) => {
-    console.error(e)
-    process.exit(1)
-  })
-  .finally(() => prisma.$disconnect())
+if (require.main === module) {
+  main()
+    .catch((e) => {
+      console.error(e)
+      process.exit(1)
+    })
+    .finally(() => prisma.$disconnect())
+}
