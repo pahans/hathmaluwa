@@ -1,59 +1,49 @@
-import { Box, Container, DropdownMenu, Flex, Link as RadixLink, Text, TextField } from '@radix-ui/themes';
-import Link from 'next/link';
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import ThemeToggle from './theme-toggle'
 
-function NavItem({ href, children }: { href: string; children: React.ReactNode }) {
-  return (
-    <RadixLink asChild style={{ color: 'white' }} size="1" weight="bold" highContrast>
-      <Link href={href} style={{ textTransform: 'uppercase' }}>
-        {children}
-      </Link>
-    </RadixLink>
-  );
-}
+const LINKS = [
+  { href: '/', label: 'Home' },
+  { href: '/subscribe', label: 'Subscribe' },
+  { href: '/badge', label: 'Badge' },
+  { href: '/contact', label: 'Contact' },
+]
 
 function NavBar() {
+  const router = useRouter()
+  const query = typeof router.query.q === 'string' ? router.query.q : ''
+
   return (
-    <Box style={{ backgroundColor: 'var(--gray-12)' }} py="3" mb="4" width="100%">
-      <Container px="4">
-        <Flex align="center" justify="between" gap="4" wrap="wrap">
-          <Text size="3" weight="bold" style={{ color: 'white', textTransform: 'uppercase' }}>
-            Hathmaluwa
-          </Text>
+    <header className="hm-site-header">
+      <div className="hm-header-inner">
+        <Link className="hm-brand" href="/" aria-label="Hathmaluwa home">
+          {/* The logo is used exactly as supplied. See design/hathmaluwa/logos-README.md. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/badges/hathmaluwa-horizontal.png" width={131} height={40} alt="හත්මාළුව Hathmaluwa" />
+        </Link>
 
-          <Flex gap="5" align="center" wrap="wrap">
-            <NavItem href="/">Home</NavItem>
-            <NavItem href="/signup">Add Your Blog</NavItem>
-            <NavItem href="/subscribe">Subscribe</NavItem>
+        <nav className="hm-nav" aria-label="Main">
+          {LINKS.map((link) => (
+            <Link key={link.href} href={link.href} aria-current={router.pathname === link.href ? 'page' : undefined}>
+              {link.label}
+            </Link>
+          ))}
+        </nav>
 
-            <DropdownMenu.Root>
-              <DropdownMenu.Trigger>
-                <Text
-                  size="1"
-                  weight="bold"
-                  style={{ color: 'white', textTransform: 'uppercase', cursor: 'pointer' }}
-                >
-                  Support
-                </Text>
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Content>
-                <DropdownMenu.Item asChild>
-                  <Link href="/donate">Donate</Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item asChild>
-                  <Link href="/sponsor">Sponsor</Link>
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </DropdownMenu.Root>
+        <form className="hm-search" role="search" action="/" method="get">
+          <label htmlFor="hm-q" className="hm-sr-only">
+            Search posts
+          </label>
+          <input id="hm-q" name="q" type="search" placeholder="Search" autoComplete="off" defaultValue={query} key={query} />
+        </form>
 
-            <NavItem href="/badge">Badge</NavItem>
-            <NavItem href="/contact">Contact</NavItem>
-          </Flex>
-
-          <TextField.Root placeholder="Search" size="2" style={{ width: '12rem' }} />
-        </Flex>
-      </Container>
-    </Box>
-  );
+        <ThemeToggle />
+        <Link className="hm-btn hm-btn-header" href="/signup">
+          Add Your Blog
+        </Link>
+      </div>
+    </header>
+  )
 }
 
 export default NavBar
