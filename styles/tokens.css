@@ -1,0 +1,72 @@
+/*
+  Hathmaluwa design tokens. Source of truth: design/hathmaluwa/tokens.json and README.md.
+  Light values live on :root; dark values are applied by the OS setting (unless the visitor
+  chose light) or by data-theme="dark" on <html>, which components/theme-toggle.tsx sets.
+*/
+:root {
+    color-scheme: light;
+    --leaf: #64bb46;
+    --sun: #f8d14b;
+    --amber: #ed9621;
+    --coral: #e65c29;
+    --navy: #1a5995;
+    --ink: #08192b;
+    --ink-muted: #4a5d73;
+    --surface: #ffffff;
+    --plate: #f2f2f2;
+    --border: #7b8a9b;
+    --on-navy: #ffffff;
+    --on-fill: #08192b;
+    --logo-ground: #ffffff;
+    --hairline: #e4e8ed;
+    --rule: #c5cdd6;
+    --shadow-menu: 0 8px 24px rgba(8, 25, 43, 0.14);
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 16px;
+    --space-4: 24px;
+    --space-5: 40px;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 16px;
+    --font-serif: Georgia, "Times New Roman", "Noto Sans Sinhala", serif;
+    --font-sans: system-ui, -apple-system, "Segoe UI", "Noto Sans Sinhala", "Sinhala MN", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --navy: #7db4ea;
+      --ink: #f0f3f6;
+      --ink-muted: #b9c2cc;
+      --surface: #22272e;
+      --plate: #30363f;
+      --border: #8b96a3;
+      --on-navy: #22272e;
+      --hairline: #3b424c;
+      --rule: #505862;
+      --shadow-menu: 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --navy: #7db4ea;
+    --ink: #f0f3f6;
+    --ink-muted: #b9c2cc;
+    --surface: #22272e;
+    --plate: #30363f;
+    --border: #8b96a3;
+    --on-navy: #22272e;
+    --hairline: #3b424c;
+    --rule: #505862;
+    --shadow-menu: 0 8px 24px rgba(0, 0, 0, 0.5);
+  }
+
+/* Radix Themes (used by the sign-up form) follows the brand tokens. Theme appearance="inherit"
+   reads the "dark"/"light" class that pages/_document.tsx puts on <html>. */
+.radix-themes {
+  --default-font-family: var(--font-sans);
+  --color-background: var(--surface);
+  --accent-9: var(--navy);
+  --accent-10: var(--navy);
+  --accent-contrast: var(--on-navy);
+}

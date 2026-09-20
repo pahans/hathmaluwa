@@ -1,7 +1,7 @@
 import { useState, type ComponentProps } from 'react';
 import Head from 'next/head';
 import { Box, Button, Card, Checkbox, Container, Flex, Heading, Text, TextField } from '@radix-ui/themes';
-import NavBar from '../components/nav';
+import Layout from '../components/layout';
 
 function FormField({
   id,
@@ -51,16 +51,14 @@ export default function Signup() {
   };
 
   return (
-    <div>
+    <Layout>
       <Head>
         <title>Sign up - Hathmaluwa</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <NavBar />
-
       <Flex justify="center" px="4">
-        <Container size="1" mt="6">
+        <Container size="1" mt="6" mb="6">
           <Card size="4">
             <Heading as="h1" size="6" align="center">
               Add Your Blog / Web Site
@@ -91,6 +89,6 @@ export default function Signup() {
           </Card>
         </Container>
       </Flex>
-    </div>
+    </Layout>
   );
 }

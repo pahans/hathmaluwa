@@ -1,49 +1,53 @@
-import { Box, Card, Flex, Heading, Link as RadixLink, Text } from '@radix-ui/themes';
-import type { BlogPost } from '@prisma/client';
+import Link from 'next/link'
+import type { BlogPost } from '@prisma/client'
+import { langOf } from '../lib/lang'
 
-type SidebarPost = Pick<BlogPost, 'id' | 'postTitle' | 'url'>;
+type SidebarPost = Pick<BlogPost, 'id' | 'postTitle' | 'url'> & { blog?: { name: string } }
 
-function PostList({ posts }: { posts: SidebarPost[] }) {
+function PopularList({ heading, note, posts }: { heading: string; note: string; posts: SidebarPost[] }) {
+  if (posts.length === 0) return null
+
   return (
-    <Flex direction="column" gap="3" mb="5">
-      {posts.map((post) => (
-        <RadixLink key={post.id} href={post.url} target="_blank" rel="noopener noreferrer" size="2">
-          {post.postTitle}
-        </RadixLink>
-      ))}
-    </Flex>
-  );
+    <section>
+      <h2>
+        {heading} <span className="hm-sub">· {note}</span>
+      </h2>
+      <ol className="hm-pop">
+        {posts.map((post, index) => (
+          <li key={post.id}>
+            <span className="hm-rank">{index + 1}</span>
+            <div>
+              {post.blog && (
+                <div className="hm-who">
+                  <b>{post.blog.name}</b>
+                </div>
+              )}
+              <a className="hm-t" lang={langOf(post.postTitle)} href={post.url} target="_blank" rel="noopener noreferrer">
+                {post.postTitle}
+              </a>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+  )
 }
 
-function Sidebar({
-  recentPosts,
-  lastWeekPosts,
-}: {
-  recentPosts: SidebarPost[];
-  lastWeekPosts: SidebarPost[];
-}) {
+function Sidebar({ recentPosts, lastWeekPosts }: { recentPosts: SidebarPost[]; lastWeekPosts: SidebarPost[] }) {
   return (
-    <Box width={{ initial: '100%', lg: '18rem' }} flexShrink="0">
-      <Card mb="4">
-        <Flex align="center" gap="2">
-          <Box width="2rem" height="2rem" style={{ borderRadius: 6, backgroundColor: 'var(--orange-9)' }} />
-          <Heading size="5">
-            hath<Text color="orange">maluwa</Text>
-          </Heading>
-        </Flex>
-      </Card>
+    <aside className="hm-side" aria-label="Popular posts and links">
+      <PopularList heading="Popular posts" note="today / yesterday" posts={recentPosts} />
+      <PopularList heading="Popular posts" note="last week" posts={lastWeekPosts} />
 
-      <Heading size="1" mb="3" style={{ textTransform: 'uppercase', color: 'var(--gray-10)' }}>
-        Popular Posts - Today/Yesterday
-      </Heading>
-      <PostList posts={recentPosts} />
-
-      <Heading size="1" mb="3" style={{ textTransform: 'uppercase', color: 'var(--gray-10)' }}>
-        Popular Posts - Last Week
-      </Heading>
-      <PostList posts={lastWeekPosts} />
-    </Box>
-  );
+      <section className="hm-card">
+        <h3>Add Your Blog?</h3>
+        <p>Submit your blog and readers can find every new post here.</p>
+        <Link className="hm-btn" href="/signup">
+          Add Your Blog
+        </Link>
+      </section>
+    </aside>
+  )
 }
 
 export default Sidebar
