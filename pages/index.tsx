@@ -1,8 +1,28 @@
 import Head from 'next/head'
-import { Flex, Heading, Text } from '@radix-ui/themes';
-import NavBar from './components/nav'
+import type { GetServerSideProps } from 'next'
+import { Box, Flex } from '@radix-ui/themes'
+import type { Blog, BlogPost } from '@prisma/client'
+import NavBar from '../components/nav'
+import Sidebar from '../components/sidebar'
+import PostCard from '../components/post-card'
+import prisma from '../lib/prisma'
 
-export default function Home() {
+type SerializedPost = Omit<BlogPost, 'timestamp' | 'createdAt' | 'updatedAt' | 'blog'> & {
+  timestamp: string
+  createdAt: string
+  updatedAt: string
+  blog: Omit<Blog, 'createdAt' | 'updatedAt'> & { createdAt: string; updatedAt: string }
+}
+
+type HomeProps = {
+  posts: SerializedPost[]
+  recentPosts: SerializedPost[]
+  lastWeekPosts: SerializedPost[]
+}
+
+export default function Home({ posts, recentPosts, lastWeekPosts }: HomeProps) {
+  const posts_ = posts.map((post) => ({ ...post, timestamp: new Date(post.timestamp) }))
+
   return (
     <div>
       <Head>
@@ -10,24 +30,44 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main>
-        <NavBar />
-        <Heading size="9">Hello</Heading>
-        <Text as="p">world</Text>
-      </main>
-      <Flex asChild align="center" justify="center" width="100%" height="6rem" style={{ borderTop: '1px solid var(--gray-a5)' }}>
-        <footer>
-          <a
-            style={{ display: 'flex', alignItems: 'center' }}
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Powered by{' '}
-            <img src="/vercel.svg" alt="Vercel Logo" style={{ height: '1rem', marginLeft: '0.5rem' }} />
-          </a>
-        </footer>
-      </Flex>
+      <NavBar />
+
+      <Box px="4" pb="6">
+        <Flex direction={{ initial: 'column', lg: 'row' }} gap="6" style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <Sidebar recentPosts={recentPosts} lastWeekPosts={lastWeekPosts} />
+
+          <Box flexGrow="1" style={{ maxWidth: 720 }}>
+            {posts_.map((post) => (
+              <PostCard key={post.id} post={post} />
+            ))}
+            {posts_.length === 0 && <Box>No posts yet.</Box>}
+          </Box>
+        </Flex>
+      </Box>
     </div>
   )
+}
+
+export const getServerSideProps: GetServerSideProps<HomeProps> = async () => {
+  const posts = await prisma.blogPost.findMany({
+    include: { blog: true },
+    orderBy: { timestamp: 'desc' },
+    take: 30,
+  })
+
+  const now = Date.now()
+  const oneDayMs = 24 * 60 * 60 * 1000
+  const recent = posts.filter((post) => now - post.timestamp.getTime() <= 2 * oneDayMs)
+  const lastWeek = posts.filter((post) => {
+    const age = now - post.timestamp.getTime()
+    return age > 2 * oneDayMs && age <= 7 * oneDayMs
+  })
+
+  return {
+    props: {
+      posts: JSON.parse(JSON.stringify(posts)),
+      recentPosts: JSON.parse(JSON.stringify(recent.slice(0, 10))),
+      lastWeekPosts: JSON.parse(JSON.stringify(lastWeek.slice(0, 10))),
+    },
+  }
 }

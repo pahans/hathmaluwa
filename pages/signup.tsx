@@ -1,7 +1,7 @@
 import { useState, type ComponentProps } from 'react';
 import Head from 'next/head';
 import { Box, Button, Card, Checkbox, Container, Flex, Heading, Text, TextField } from '@radix-ui/themes';
-import NavBar from './components/nav';
+import NavBar from '../components/nav';
 
 function FormField({
   id,
