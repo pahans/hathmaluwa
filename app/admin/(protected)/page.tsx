@@ -1,12 +1,14 @@
 import type { ComponentProps } from 'react'
-import { Badge, Button, Card, Flex, Heading, Table, Text } from '@radix-ui/themes'
+import { Badge, Button, Card, Flex, Heading, Table, Text, TextField } from '@radix-ui/themes'
 import type { Blog } from '@prisma/client'
 import prisma from '../../../lib/prisma'
 import {
   approveBlogAction,
+  banBlogAction,
   deleteBlogAction,
   pollBlogAction,
   renewBlogAction,
+  unbanBlogAction,
   unpublishBlogAction,
 } from './actions'
 
@@ -68,6 +70,22 @@ function BlogActions({ blog }: { blog: BlogWithCount }) {
           </Button>
         </form>
       )}
+      {blog.banned ? (
+        <form action={unbanBlogAction.bind(null, blog.id)}>
+          <Button type="submit" size="1" color="green" variant="soft">
+            Unban
+          </Button>
+        </form>
+      ) : (
+        <form action={banBlogAction.bind(null, blog.id)}>
+          <Flex gap="1" align="center">
+            <TextField.Root name="reason" placeholder="Reason (optional)" size="1" />
+            <Button type="submit" size="1" color="red">
+              Ban
+            </Button>
+          </Flex>
+        </form>
+      )}
       <form action={deleteBlogAction.bind(null, blog.id)}>
         <Button type="submit" size="1" color="red" variant="soft">
           Delete
@@ -122,6 +140,12 @@ function BlogTable({ blogs }: { blogs: BlogWithCount[] }) {
               <Flex direction="column" gap="1" align="start">
                 <Badge color={statusColor(blog.subscriptionStatus)}>{blog.subscriptionStatus}</Badge>
                 {!blog.approved && <Badge color="orange">pending review</Badge>}
+                {blog.banned && <Badge color="red">banned</Badge>}
+                {blog.banned && blog.banReason && (
+                  <Text size="1" color="gray">
+                    {blog.banReason}
+                  </Text>
+                )}
               </Flex>
             </Table.Cell>
             <Table.Cell>{blog._count.posts}</Table.Cell>
@@ -147,8 +171,9 @@ export default async function AdminDashboard() {
     include: { _count: { select: { posts: true } } },
   })
 
-  const pending = blogs.filter((b) => !b.approved)
-  const approved = blogs.filter((b) => b.approved)
+  const banned = blogs.filter((b) => b.banned)
+  const pending = blogs.filter((b) => !b.banned && !b.approved)
+  const approved = blogs.filter((b) => !b.banned && b.approved)
 
   return (
     <Flex direction="column" gap="6">
@@ -167,6 +192,15 @@ export default async function AdminDashboard() {
         </Heading>
         <Card size="2">
           <BlogTable blogs={approved} />
+        </Card>
+      </section>
+
+      <section>
+        <Heading as="h2" size="5" mb="3">
+          Banned ({banned.length})
+        </Heading>
+        <Card size="2">
+          <BlogTable blogs={banned} />
         </Card>
       </section>
     </Flex>

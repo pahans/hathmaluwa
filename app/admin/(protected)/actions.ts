@@ -26,6 +26,28 @@ export async function unpublishBlogAction(blogId: string) {
   revalidatePath('/admin')
 }
 
+// Distinct from unpublish: banning is for abuse, not "not yet reviewed", and
+// records when/why so it shows up separately in the dashboard. Home page and
+// RSS queries exclude banned blogs regardless of `approved`.
+export async function banBlogAction(blogId: string, formData: FormData) {
+  await requireAdmin()
+  const reason = String(formData.get('reason') ?? '').trim()
+  await prisma.blog.update({
+    where: { id: blogId },
+    data: { banned: true, bannedAt: new Date(), banReason: reason || null },
+  })
+  revalidatePath('/admin')
+}
+
+export async function unbanBlogAction(blogId: string) {
+  await requireAdmin()
+  await prisma.blog.update({
+    where: { id: blogId },
+    data: { banned: false, bannedAt: null, banReason: null },
+  })
+  revalidatePath('/admin')
+}
+
 export async function deleteBlogAction(blogId: string) {
   await requireAdmin()
   const blog = await prisma.blog.findUnique({ where: { id: blogId } })

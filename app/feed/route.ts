@@ -19,7 +19,7 @@ function escapeXml(value: string): string {
 
 export async function GET() {
   const posts = await prisma.blogPost.findMany({
-    where: { blog: { approved: true } },
+    where: { blog: { approved: true, banned: false } },
     include: { blog: true },
     orderBy: { timestamp: 'desc' },
     take: FEED_ITEM_LIMIT,
