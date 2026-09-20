@@ -1,0 +1,31 @@
+name: Poll unsupported blogs
+
+on:
+  schedule:
+    # Every 30 minutes. Only covers blogs whose feed has no WebSub hub
+    # (subscriptionStatus 'unsupported'); hub-backed blogs get pushed via the
+    # callback route instead and are untouched by this job.
+    - cron: '*/30 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Poll blogs without WebSub support
+        run: pnpm poll-unsupported-blogs
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}

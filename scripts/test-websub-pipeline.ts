@@ -14,10 +14,11 @@ import http, { type IncomingMessage, type ServerResponse } from 'http'
 import type { AddressInfo } from 'net'
 import { createHmac, randomUUID } from 'crypto'
 import prisma from '../lib/prisma'
-import { discoverFeedUrl, discoverHub } from '../lib/websub/discover'
+import { discoverFeedUrl, discoverHub, NoHubAdvertisedError } from '../lib/websub/discover'
 import { generateSubscriptionSecret } from '../lib/websub/secret'
 import { sendSubscription, callbackUrl } from '../lib/websub/subscribe'
 import { GET as callbackGet, POST as callbackPost } from '../app/api/websub/callback/route'
+import { backfillBlog } from './backfill-blog'
 
 function feedXml(hubUrl: string, selfUrl: string, entries: { url: string; title: string; pubDate: string }[]) {
   return `<?xml version="1.0"?>
@@ -42,6 +43,85 @@ function feedXml(hubUrl: string, selfUrl: string, entries: { url: string; title:
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(`FAILED: ${message}`)
+}
+
+function feedXmlNoHub(selfUrl: string, entries: { url: string; title: string; pubDate: string }[]) {
+  return `<?xml version="1.0"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Mock Unsupported Blog</title>
+    <atom:link rel="self" href="${selfUrl}" type="application/rss+xml" />
+    ${entries
+      .map(
+        (e) => `<item>
+      <title>${e.title}</title>
+      <link>${e.url}</link>
+      <pubDate>${e.pubDate}</pubDate>
+      <description>${e.title} description</description>
+    </item>`,
+      )
+      .join('\n')}
+  </channel>
+</rss>`
+}
+
+// A blog whose feed advertises no hub should be marked 'unsupported' rather
+// than fail, and scripts/poll-unsupported-blogs.ts's logic (backfillBlog)
+// should still be able to pick up its entries.
+async function testPollingFallback() {
+  const server = http.createServer((req: IncomingMessage, res: ServerResponse) => {
+    if (req.method === 'GET' && req.url?.startsWith('/feed')) {
+      res.writeHead(200, { 'content-type': 'application/rss+xml' })
+      res.end(currentFeedXml)
+      return
+    }
+    res.writeHead(404)
+    res.end()
+  })
+
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
+  const port = (server.address() as AddressInfo).port
+  const origin = `http://127.0.0.1:${port}`
+  const feedUrl = `${origin}/feed`
+  const postUrl = `${origin}/posts/only`
+  let currentFeedXml = feedXmlNoHub(feedUrl, [
+    { url: postUrl, title: 'Polled post', pubDate: new Date().toUTCString() },
+  ])
+
+  let blog = await prisma.blog.create({
+    data: {
+      url: `${origin}/`,
+      name: 'Polling Fallback Test Blog',
+      author: 'Test Script',
+      authorEmail: 'test@example.com',
+    },
+  })
+
+  try {
+    let threw = false
+    try {
+      await discoverHub(feedUrl)
+    } catch (error) {
+      threw = error instanceof NoHubAdvertisedError
+    }
+    assert(threw, 'discoverHub should throw NoHubAdvertisedError when no hub link is present')
+
+    blog = await prisma.blog.update({
+      where: { id: blog.id },
+      data: { feedUrl, subscriptionStatus: 'unsupported' },
+    })
+    console.log('[ok] discoverHub throws NoHubAdvertisedError for a feed with no hub')
+
+    const count = await backfillBlog({ id: blog.id, feedUrl: blog.feedUrl! })
+    assert(count === 1, `expected 1 entry from poll, got ${count}`)
+    const polled = await prisma.blogPost.findUnique({ where: { url: postUrl } })
+    assert(polled !== null, 'polling should have upserted the post')
+    console.log('[ok] backfillBlog (used by poll-unsupported-blogs) ingests entries with no hub')
+  } finally {
+    await prisma.blogPost.deleteMany({ where: { blogId: blog.id } })
+    await prisma.blog.delete({ where: { id: blog.id } })
+    server.close()
+  }
 }
 
 async function main() {
@@ -180,6 +260,8 @@ async function main() {
 }
 
 main()
+  .then(testPollingFallback)
+  .then(() => console.log('\nAll polling fallback checks passed.'))
   .catch((e) => {
     console.error(e)
     process.exit(1)

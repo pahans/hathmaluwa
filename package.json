@@ -9,6 +9,7 @@
     "add-blog": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/add-blog.ts",
     "backfill-blog": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/backfill-blog.ts",
     "websub:renew": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/renew-subscriptions.ts",
+    "poll-unsupported-blogs": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/poll-unsupported-blogs.ts",
     "test:websub-pipeline": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/test-websub-pipeline.ts"
   },
   "engines": {

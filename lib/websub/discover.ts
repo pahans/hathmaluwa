@@ -5,6 +5,11 @@ export interface DiscoveredFeed {
   hubUrl: string
 }
 
+// Thrown when a feed simply has no <link rel="hub">, as opposed to a network
+// or parse failure — callers use this to fall back to polling instead of
+// treating the blog as failed.
+export class NoHubAdvertisedError extends Error {}
+
 const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '@_' })
 
 function toArray<T>(value: T | T[] | undefined | null): T[] {
@@ -49,7 +54,7 @@ export async function discoverHub(feedUrl: string): Promise<DiscoveredFeed> {
 
   const hubLink = links.find((link) => link?.['@_rel'] === 'hub')
   if (!hubLink?.['@_href']) {
-    throw new Error(`Feed ${feedUrl} does not advertise a WebSub hub`)
+    throw new NoHubAdvertisedError(`Feed ${feedUrl} does not advertise a WebSub hub`)
   }
 
   const selfLink = links.find((link) => link?.['@_rel'] === 'self')
