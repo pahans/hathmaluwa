@@ -3,7 +3,7 @@
   "configurations": [
     {
       "name": "hathmaluwa-dev",
-      "runtimeExecutable": "yarn",
+      "runtimeExecutable": "pnpm",
       "runtimeArgs": ["dev"],
       "port": 3000
     }

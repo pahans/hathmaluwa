@@ -12,30 +12,29 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16]
+        node-version: [lts/*]
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
+    - uses: pnpm/action-setup@v4
+      with:
+        version: 11
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-    - uses: actions/cache@v1
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
-    - name: npm yarn, build
+        cache: pnpm
+    - name: Install and build
       run: |
-        yarn
-        yarn build
+        pnpm install --frozen-lockfile
+        pnpm build
       env:
         CI: true
-    - name: Deploy
-      uses: actions-hub/gcloud@master
-      env:
-        PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
-        APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
       with:
-        args: app deploy
+        credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+    - name: Deploy to App Engine
+      uses: google-github-actions/deploy-appengine@v2
+      with:
+        project_id: ${{ secrets.GCLOUD_PROJECT_ID }}
