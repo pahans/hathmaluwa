@@ -25,16 +25,16 @@ export default async function Home({
   const requestedPage = typeof params.page === 'string' ? parseInt(params.page, 10) : 1
 
   const latest = await prisma.blogPost.findMany({
-    where: { blog: { approved: true } },
+    where: { blog: { approved: true, banned: false } },
     include: { blog: true },
     orderBy: { timestamp: 'desc' },
     take: 30,
   })
 
   // A search replaces the feed only. The popular-posts sidebar always draws from the latest posts.
-  // Unapproved blogs (pending /signup review) never show up here or in search.
+  // Unapproved blogs (pending /signup review) and banned blogs never show up here or in search.
   const where = {
-    blog: { approved: true },
+    blog: { approved: true, banned: false },
     ...(q
       ? {
           OR: [

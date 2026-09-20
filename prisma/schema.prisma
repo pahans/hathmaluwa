@@ -15,6 +15,9 @@ model Blog {
   author             String
   authorEmail        String             @map("author_email")
   approved           Boolean            @default(true) @map("approved")
+  banned             Boolean            @default(false) @map("banned")
+  bannedAt           DateTime?          @map("banned_at") @db.Timestamptz(3)
+  banReason          String?            @map("ban_reason")
   feedUrl            String?            @map("feed_url")
   hubUrl             String?            @map("hub_url")
   subscriptionSecret String?            @map("subscription_secret")
