@@ -4,8 +4,11 @@ import type { Blog, BlogPost } from '@prisma/client'
 import Layout from '../components/layout'
 import Sidebar from '../components/sidebar'
 import PostCard from '../components/post-card'
+import Pagination from '../components/pagination'
 import Tagline from '../components/tagline'
 import prisma from '../lib/prisma'
+
+const POSTS_PER_PAGE = 10
 
 type SerializedPost = Omit<BlogPost, 'timestamp' | 'createdAt' | 'updatedAt' | 'blog'> & {
   timestamp: string
@@ -19,9 +22,11 @@ type HomeProps = {
   recentPosts: SerializedPost[]
   lastWeekPosts: SerializedPost[]
   query: string
+  currentPage: number
+  totalPages: number
 }
 
-export default function Home({ posts, recentPosts, lastWeekPosts, query }: HomeProps) {
+export default function Home({ posts, recentPosts, lastWeekPosts, query, currentPage, totalPages }: HomeProps) {
   const posts_ = posts.map((post) => ({ ...post, timestamp: new Date(post.timestamp) }))
 
   return (
@@ -49,6 +54,8 @@ export default function Home({ posts, recentPosts, lastWeekPosts, query }: HomeP
               {query ? 'No posts match your search. Try a shorter word.' : 'No posts yet.'}
             </p>
           )}
+
+          <Pagination currentPage={currentPage} totalPages={totalPages} query={query} />
         </section>
 
         <Sidebar recentPosts={recentPosts} lastWeekPosts={lastWeekPosts} />
@@ -59,6 +66,7 @@ export default function Home({ posts, recentPosts, lastWeekPosts, query }: HomeP
 
 export const getServerSideProps: GetServerSideProps<HomeProps> = async ({ query }) => {
   const q = typeof query.q === 'string' ? query.q.trim().slice(0, 100) : ''
+  const requestedPage = typeof query.page === 'string' ? parseInt(query.page, 10) : 1
 
   const latest = await prisma.blogPost.findMany({
     include: { blog: true },
@@ -67,20 +75,27 @@ export const getServerSideProps: GetServerSideProps<HomeProps> = async ({ query 
   })
 
   // A search replaces the feed only. The popular-posts sidebar always draws from the latest posts.
-  const matches = q
-    ? await prisma.blogPost.findMany({
-        where: {
-          OR: [
-            { postTitle: { contains: q, mode: 'insensitive' } },
-            { summary: { contains: q, mode: 'insensitive' } },
-            { blog: { name: { contains: q, mode: 'insensitive' } } },
-          ],
-        },
-        include: { blog: true },
-        orderBy: { timestamp: 'desc' },
-        take: 30,
-      })
-    : latest
+  const where = q
+    ? {
+        OR: [
+          { postTitle: { contains: q, mode: 'insensitive' as const } },
+          { summary: { contains: q, mode: 'insensitive' as const } },
+          { blog: { name: { contains: q, mode: 'insensitive' as const } } },
+        ],
+      }
+    : {}
+
+  const matchCount = await prisma.blogPost.count({ where })
+  const totalPages = Math.max(1, Math.ceil(matchCount / POSTS_PER_PAGE))
+  const currentPage = Math.min(Math.max(requestedPage || 1, 1), totalPages)
+
+  const matches = await prisma.blogPost.findMany({
+    where,
+    include: { blog: true },
+    orderBy: { timestamp: 'desc' },
+    skip: (currentPage - 1) * POSTS_PER_PAGE,
+    take: POSTS_PER_PAGE,
+  })
 
   const now = Date.now()
   const oneDayMs = 24 * 60 * 60 * 1000
@@ -96,6 +111,8 @@ export const getServerSideProps: GetServerSideProps<HomeProps> = async ({ query 
       recentPosts: JSON.parse(JSON.stringify(recent.slice(0, 10))),
       lastWeekPosts: JSON.parse(JSON.stringify(lastWeek.slice(0, 10))),
       query: q,
+      currentPage,
+      totalPages,
     },
   }
 }
