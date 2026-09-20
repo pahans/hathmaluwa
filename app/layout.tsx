@@ -1,14 +1,24 @@
-import { Html, Head, Main, NextScript } from 'next/document'
+import '@radix-ui/themes/styles.css'
+import '../styles/tokens.css'
+import '../styles/site.css'
+import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
+import ThemeProvider from './theme-provider'
+
+export const metadata: Metadata = {
+  title: 'Hathmaluwa',
+}
 
 // Applies the saved (or system) theme before first paint so the page never flashes the wrong theme.
 // Sets the "dark"/"light" class that Radix Themes (appearance="inherit") reads, and data-theme when
 // the visitor made an explicit choice. Keep in sync with components/theme-toggle.tsx.
 const themeInit = `(function(){try{var s=localStorage.getItem('hm-theme');var saved=s==='dark'||s==='light';var t=saved?s:(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');var r=document.documentElement;r.classList.add(t);r.classList.remove(t==='dark'?'light':'dark');if(saved)r.setAttribute('data-theme',s)}catch(e){}})()`
 
-export default function Document() {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <Html lang="en">
-      <Head>
+    <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.ico" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
@@ -16,11 +26,10 @@ export default function Document() {
           href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;500;600;700&display=swap"
         />
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
-      </Head>
+      </head>
       <body>
-        <Main />
-        <NextScript />
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
-    </Html>
+    </html>
   )
 }

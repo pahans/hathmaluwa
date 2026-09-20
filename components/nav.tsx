@@ -1,5 +1,7 @@
+'use client'
+
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { usePathname, useSearchParams } from 'next/navigation'
 import ThemeToggle from './theme-toggle'
 
 const LINKS = [
@@ -10,8 +12,9 @@ const LINKS = [
 ]
 
 function NavBar() {
-  const router = useRouter()
-  const query = typeof router.query.q === 'string' ? router.query.q : ''
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const query = searchParams.get('q') ?? ''
 
   return (
     <header className="hm-site-header">
@@ -24,7 +27,7 @@ function NavBar() {
 
         <nav className="hm-nav" aria-label="Main">
           {LINKS.map((link) => (
-            <Link key={link.href} href={link.href} aria-current={router.pathname === link.href ? 'page' : undefined}>
+            <Link key={link.href} href={link.href} aria-current={pathname === link.href ? 'page' : undefined}>
               {link.label}
             </Link>
           ))}
