@@ -1,35 +1,26 @@
 import { readFileSync } from 'fs'
-import { XMLParser } from 'fast-xml-parser'
-import { decode } from 'he'
+import Parser from 'rss-parser'
 import prisma from '../lib/prisma'
 import { onboardBlog } from '../lib/websub/onboardBlog'
 import { safeFetch } from '../lib/websub/safeFetch'
-import { homepageUrlOf } from '../lib/websub/homepageUrl'
+import { homepageUrlFromFeed } from '../lib/websub/homepageUrl'
 
 // Onboards many blogs at once from a plain text file of feed URLs (one per
 // line, '#' comments allowed). We often only have the feed URL for a legacy
 // list, not the blog's name/author/email, so this derives the name from the
 // feed's own <title> and falls back to a placeholder author/email rather
 // than guessing at real personal details we don't have.
-const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '@_' })
-
-function textOf(value: unknown): string | null {
-  if (typeof value === 'string') return value.trim() || null
-  if (value && typeof value === 'object' && '#text' in (value as Record<string, unknown>)) {
-    return textOf((value as Record<string, unknown>)['#text'])
-  }
-  return null
-}
+const parser = new Parser()
 
 async function fetchFeedInfo(feedUrl: string): Promise<{ title: string; homepageUrl: string }> {
   const res = await safeFetch(feedUrl)
   if (!res.ok) throw new Error(`Failed to fetch ${feedUrl}: ${res.status}`)
 
-  const doc = parser.parse(await res.text())
-  const title = textOf(doc.feed?.title) ?? textOf(doc.rss?.channel?.title)
-  if (!title) throw new Error(`No <title> found in feed ${feedUrl}`)
+  const xml = await res.text()
+  const feed = await parser.parseString(xml)
+  if (!feed.title) throw new Error(`No <title> found in feed ${feedUrl}`)
 
-  return { title: decode(title), homepageUrl: homepageUrlOf(doc, feedUrl) }
+  return { title: feed.title, homepageUrl: homepageUrlFromFeed(feed, feedUrl) }
 }
 
 function readFeedUrls(filePath: string): string[] {
