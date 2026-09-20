@@ -31,16 +31,21 @@ async function main() {
     if (dryRun) continue
 
     try {
+      // Written 'pending' *before* sending the subscribe request, same as
+      // onboardBlog.ts - the hub's verification GET can (and often does)
+      // reach our callback route before this script's own next line runs,
+      // so a status write issued after sendSubscription() would race the
+      // callback and can clobber 'active' back to 'pending'.
+      await prisma.blog.update({
+        where: { id: blog.id },
+        data: { hubUrl: WEBSUB_HUB_URL, subscriptionStatus: 'pending' },
+      })
       await sendSubscription({
         hubUrl: WEBSUB_HUB_URL,
         topicUrl: blog.feedUrl!,
         blogId: blog.id,
         secret: blog.subscriptionSecret!,
         mode: 'subscribe',
-      })
-      await prisma.blog.update({
-        where: { id: blog.id },
-        data: { hubUrl: WEBSUB_HUB_URL, subscriptionStatus: 'pending' },
       })
       migrated++
     } catch (error) {
