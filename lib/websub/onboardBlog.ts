@@ -1,7 +1,7 @@
 import prisma from '../prisma'
 import { discoverFeedUrl, discoverHub, NoHubAdvertisedError } from './discover'
 import { generateSubscriptionSecret } from './secret'
-import { sendSubscription } from './subscribe'
+import { sendSubscription, WEBSUB_HUB_URL } from './subscribe'
 import { backfillBlog } from './backfillBlog'
 
 export interface OnboardBlogOptions {
@@ -37,7 +37,10 @@ export async function onboardBlog(
   try {
     const discovered = await discoverHub(feedUrl)
     topicUrl = discovered.feedUrl
-    hubUrl = discovered.hubUrl
+    // We ignore discovered.hubUrl and always subscribe through WEBSUB_HUB_URL
+    // (see subscribe.ts) - discoverHub is still used to confirm the feed
+    // advertises a hub at all, so feeds with none still fall back to polling.
+    hubUrl = WEBSUB_HUB_URL
     subscriptionSecret = generateSubscriptionSecret()
   } catch (error) {
     if (!(error instanceof NoHubAdvertisedError)) throw error
