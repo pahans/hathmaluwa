@@ -5,6 +5,16 @@ import { safeFetch } from './safeFetch'
 // on scripts/renew-subscriptions.ts to renew well before any lease expires.
 const REQUESTED_LEASE_SECONDS = 10 * 24 * 60 * 60
 
+// We subscribe through this hub for every blog, regardless of which hub (if
+// any) its feed itself advertises. Most of our blogs are Blogger/Blogspot,
+// which all declare Google's abandoned pubsubhubbub.appspot.com - it's still
+// up but drops the large majority of subscribe requests (confirmed: ~4/5
+// hang with no response). websubhub.com is a maintained, standards-compliant
+// hub that explicitly supports subscribing to "any public publisher" - it
+// polls the topic itself, so it works even though the feed names a different
+// hub.
+export const WEBSUB_HUB_URL = 'https://websubhub.com/hub'
+
 export function callbackUrl(blogId: string): string {
   return `${SITE_URL}/api/websub/callback?blogId=${encodeURIComponent(blogId)}`
 }
