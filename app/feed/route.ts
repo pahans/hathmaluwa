@@ -1,9 +1,10 @@
 import prisma from '../../lib/prisma'
 import { SITE_URL, TAGLINE } from '../../lib/site'
 
-// Regenerate at most every 5 minutes rather than on every request - this
-// aggregates every tracked blog's posts, not a single fast query.
-export const revalidate = 300
+// Dynamic (not prerendered) - like every other DB-backed route in this app.
+// `revalidate` would make Next.js try to statically generate this page at
+// `next build` time, which needs a live DATABASE_URL there and broke CI.
+export const dynamic = 'force-dynamic'
 
 const FEED_ITEM_LIMIT = 50
 
@@ -52,6 +53,9 @@ ${items}
 `
 
   return new Response(xml, {
-    headers: { 'content-type': 'application/rss+xml; charset=utf-8' },
+    headers: {
+      'content-type': 'application/rss+xml; charset=utf-8',
+      'cache-control': 'public, s-maxage=300, stale-while-revalidate=60',
+    },
   })
 }
