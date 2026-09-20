@@ -51,6 +51,13 @@ export async function discoverHub(feedUrl: string): Promise<DiscoveredFeed> {
   const xml = await res.text()
   const doc = parser.parse(xml)
 
+  // XMLParser doesn't fail on non-XML/garbage input, it just returns an
+  // object with none of the expected shape - catch that here so callers
+  // don't treat "not actually a feed" the same as "valid feed, no hub".
+  if (!doc.feed && !doc.rss?.channel) {
+    throw new Error(`${feedUrl} does not look like an RSS or Atom feed`)
+  }
+
   const links = [...toArray(doc.feed?.link), ...toArray(doc.rss?.channel?.['atom:link'])]
 
   const hubLink = links.find((link) => link?.['@_rel'] === 'hub')
