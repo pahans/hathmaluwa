@@ -6,6 +6,8 @@
     "start": "next start",
     "postinstall": "prisma generate",
     "seed": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/seed.ts",
+    "add-blog": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/add-blog.ts",
+    "backfill-blog": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/backfill-blog.ts",
     "websub:renew": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/renew-subscriptions.ts"
   },
   "engines": {
@@ -14,6 +16,7 @@
   "dependencies": {
     "@prisma/client": "^6.19.3",
     "@radix-ui/themes": "^3.3.0",
+    "fast-xml-parser": "^5.11.1",
     "next": "16.3.5",
     "prisma": "^6.19.3",
     "react": "^19.3.0",
