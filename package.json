@@ -19,7 +19,7 @@
     "test:websub-pipeline": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/test-websub-pipeline.ts"
   },
   "engines": {
-    "node": ">=20.9.0"
+    "node": ">=24.0.0"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
