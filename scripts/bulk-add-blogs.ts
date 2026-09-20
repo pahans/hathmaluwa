@@ -1,35 +1,32 @@
 import { readFileSync } from 'fs'
-import { XMLParser } from 'fast-xml-parser'
-import { decode } from 'he'
+import Parser from 'rss-parser'
 import prisma from '../lib/prisma'
 import { onboardBlog } from '../lib/websub/onboardBlog'
 import { safeFetch } from '../lib/websub/safeFetch'
-import { homepageUrlOf } from '../lib/websub/homepageUrl'
+import { homepageUrlFromFeed } from '../lib/websub/homepageUrl'
+import { authorOf } from '../lib/websub/feedAuthor'
 
 // Onboards many blogs at once from a plain text file of feed URLs (one per
 // line, '#' comments allowed). We often only have the feed URL for a legacy
 // list, not the blog's name/author/email, so this derives the name from the
-// feed's own <title> and falls back to a placeholder author/email rather
-// than guessing at real personal details we don't have.
-const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '@_' })
+// feed's own <title>, the author from the feed's byline (see feedAuthor.ts),
+// and falls back to a placeholder author/email only when the feed itself
+// carries no author info to go on.
+const parser = new Parser()
 
-function textOf(value: unknown): string | null {
-  if (typeof value === 'string') return value.trim() || null
-  if (value && typeof value === 'object' && '#text' in (value as Record<string, unknown>)) {
-    return textOf((value as Record<string, unknown>)['#text'])
-  }
-  return null
-}
-
-async function fetchFeedInfo(feedUrl: string): Promise<{ title: string; homepageUrl: string }> {
+async function fetchFeedInfo(feedUrl: string): Promise<{ title: string; author: string; homepageUrl: string }> {
   const res = await safeFetch(feedUrl)
   if (!res.ok) throw new Error(`Failed to fetch ${feedUrl}: ${res.status}`)
 
-  const doc = parser.parse(await res.text())
-  const title = textOf(doc.feed?.title) ?? textOf(doc.rss?.channel?.title)
-  if (!title) throw new Error(`No <title> found in feed ${feedUrl}`)
+  const xml = await res.text()
+  const feed = await parser.parseString(xml)
+  if (!feed.title) throw new Error(`No <title> found in feed ${feedUrl}`)
 
-  return { title: decode(title), homepageUrl: homepageUrlOf(doc, feedUrl) }
+  return {
+    title: feed.title,
+    author: (await authorOf(xml)) ?? 'Unknown',
+    homepageUrl: homepageUrlFromFeed(feed, feedUrl),
+  }
 }
 
 function readFeedUrls(filePath: string): string[] {
@@ -52,9 +49,9 @@ async function main() {
   for (const feedUrl of feedUrls) {
     console.log(`\n=== ${feedUrl} ===`)
     try {
-      const { title, homepageUrl } = await fetchFeedInfo(feedUrl)
+      const { title, author, homepageUrl } = await fetchFeedInfo(feedUrl)
       const hostname = new URL(feedUrl).hostname
-      await onboardBlog(homepageUrl, title, title, `unknown@${hostname}`, { feedUrlOverride: feedUrl })
+      await onboardBlog(homepageUrl, title, author, `unknown@${hostname}`, { feedUrlOverride: feedUrl })
       results.push({ feedUrl, ok: true })
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)

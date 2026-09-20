@@ -1,37 +1,47 @@
-import { XMLParser } from 'fast-xml-parser'
+import Parser from 'rss-parser'
 import prisma from '../lib/prisma'
 import { safeFetch } from '../lib/websub/safeFetch'
-import { homepageUrlOf } from '../lib/websub/homepageUrl'
+import { homepageUrlFromFeed } from '../lib/websub/homepageUrl'
 
-// One-off repair for blogs onboarded by the old bulk-add-blogs.ts, which
-// stored the feed URL in blog.url (the column meant to be the blog's
-// homepage) instead of deriving the real homepage from the feed. Affected
-// rows have url === feedUrl; this re-derives the homepage from each one's
-// feed and updates url, leaving feedUrl untouched.
-const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '@_' })
+// One-off repair for blogs whose url column (meant to be the blog's
+// homepage, per the admin panel and public site) actually holds a feed URL.
+// This happens whenever a feed URL was passed straight into onboardBlog
+// instead of the real homepage - not just when url === feedUrl (a blog can
+// be re-subscribed and get a *different* feedUrl - e.g. Blogger's discovery
+// rewriting it to a "self" link - while url keeps the original feed URL it
+// was created with). So rather than trust feedUrl, this fetches each blog's
+// own url and checks whether the response is itself a feed.
+const parser = new Parser()
+
+// Same "is this XML/a feed" heuristic discoverFeedUrl uses to decide
+// whether a URL is already a feed rather than an HTML page.
+function looksLikeFeed(contentType: string, body: string): boolean {
+  return contentType.includes('xml') || /^\s*(<\?xml|<feed[\s>]|<rss[\s>])/i.test(body)
+}
 
 async function main() {
   const dryRun = !process.argv.includes('--apply')
 
-  const affected = await prisma.blog.findMany({
-    where: { feedUrl: { not: null } },
-  })
-  const candidates = affected.filter((blog) => blog.url === blog.feedUrl)
+  const blogs = await prisma.blog.findMany()
 
-  if (candidates.length === 0) {
-    console.log('No blogs found with url === feedUrl.')
-    return
-  }
-
-  for (const blog of candidates) {
+  let fixed = 0
+  for (const blog of blogs) {
     try {
-      const res = await safeFetch(blog.feedUrl as string)
-      if (!res.ok) throw new Error(`Failed to fetch ${blog.feedUrl}: ${res.status}`)
-      const doc = parser.parse(await res.text())
-      const homepageUrl = homepageUrlOf(doc, blog.feedUrl as string)
+      const res = await safeFetch(blog.url)
+      if (!res.ok) {
+        console.log(`ERROR ${blog.name}: failed to fetch ${blog.url}: ${res.status}`)
+        continue
+      }
+
+      const contentType = res.headers.get('content-type') ?? ''
+      const body = await res.text()
+      if (!looksLikeFeed(contentType, body)) continue // url is already a real homepage
+
+      const feed = await parser.parseString(body)
+      const homepageUrl = homepageUrlFromFeed(feed, blog.url)
 
       if (homepageUrl === blog.url) {
-        console.log(`SKIP  ${blog.name}: no homepage <link> found in feed, leaving as-is`)
+        console.log(`SKIP  ${blog.name}: url is a feed, but it has no homepage <link>`)
         continue
       }
 
@@ -42,6 +52,7 @@ async function main() {
       }
 
       console.log(`${dryRun ? 'WOULD FIX' : 'FIX'}  ${blog.name}: ${blog.url} -> ${homepageUrl}`)
+      fixed++
       if (!dryRun) {
         await prisma.blog.update({ where: { id: blog.id }, data: { url: homepageUrl } })
       }
@@ -51,8 +62,9 @@ async function main() {
     }
   }
 
+  console.log(`\n${fixed} row(s) ${dryRun ? 'would be' : 'were'} fixed out of ${blogs.length} checked.`)
   if (dryRun) {
-    console.log('\nDry run only - rerun with --apply to write these changes.')
+    console.log('Dry run only - rerun with --apply to write these changes.')
   }
 }
 

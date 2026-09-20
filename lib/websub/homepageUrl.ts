@@ -1,37 +1,30 @@
-function textOf(value: unknown): string | null {
-  if (typeof value === 'string') return value.trim() || null
-  if (value && typeof value === 'object' && '#text' in (value as Record<string, unknown>)) {
-    return textOf((value as Record<string, unknown>)['#text'])
-  }
-  return null
-}
+import Parser from 'rss-parser'
 
-function toArray<T>(value: T | T[] | undefined | null): T[] {
-  if (value === undefined || value === null) return []
-  return Array.isArray(value) ? value : [value]
-}
+const parser = new Parser()
 
-// Derives a blog's homepage from its parsed feed document. Atom feeds
-// advertise it as <link rel="alternate">; RSS channels use a plain <link>
-// element. Falls back to the feed URL itself when neither is present.
-export function homepageUrlOf(doc: Record<string, unknown>, feedUrl: string): string {
-  const feed = doc.feed as Record<string, unknown> | undefined
-  const channel = (doc.rss as Record<string, unknown> | undefined)?.channel as
-    | Record<string, unknown>
-    | undefined
-
-  const atomLinks = toArray(feed?.link as unknown) as Record<string, unknown>[]
-  const atomHomepage = atomLinks.find(
-    (link) => (!link?.['@_rel'] || link['@_rel'] === 'alternate') && link?.['@_href'],
-  )?.['@_href'] as string | undefined
-
-  const rssHomepage = textOf(channel?.link)
-
-  const href = atomHomepage ?? rssHomepage
-  if (!href) return feedUrl
-
+// Derives a blog's homepage from its already-parsed feed (handles Atom
+// <link rel="alternate">, RSS 2.0 <link>, and the many vendor-specific
+// quirks - Blogger's multiple <link> tags, WordPress's absolute vs.
+// relative hrefs, etc. - that a hand-rolled regex/XML-attribute reader kept
+// getting wrong). Falls back to the feed URL itself when the feed doesn't
+// advertise a link.
+export function homepageUrlFromFeed(feed: Parser.Output<unknown>, feedUrl: string): string {
+  if (!feed.link) return feedUrl
   try {
-    return new URL(href, feedUrl).toString()
+    return new URL(feed.link, feedUrl).toString()
+  } catch {
+    return feedUrl
+  }
+}
+
+// Same, but parses the feed XML itself - for callers that haven't already
+// parsed it. Falls back to the feed URL if the feed fails to parse, so a
+// malformed feed doesn't block callers - it just leaves url == feedUrl for
+// that one blog.
+export async function homepageUrlOf(xml: string, feedUrl: string): Promise<string> {
+  try {
+    const feed = await parser.parseString(xml)
+    return homepageUrlFromFeed(feed, feedUrl)
   } catch {
     return feedUrl
   }

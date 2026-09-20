@@ -9,6 +9,8 @@
     "bulk-add-blogs": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/bulk-add-blogs.ts",
     "backfill-blog": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/backfill-blog.ts",
     "fix-blog-homepage-urls": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/fix-blog-homepage-urls.ts",
+    "dedupe-blog-stubs": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/dedupe-blog-stubs.ts",
+    "fix-blog-authors": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/fix-blog-authors.ts",
     "websub:renew": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/renew-subscriptions.ts",
     "poll-unsupported-blogs": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/poll-unsupported-blogs.ts",
     "approve-blog": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/approve-blog.ts",
@@ -27,7 +29,8 @@
     "next": "16.3.5",
     "prisma": "^6.19.3",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "rss-parser": "^3.13.0"
   },
   "devDependencies": {
     "@types/he": "^1.2.3",
