@@ -4,6 +4,7 @@ import { decode } from 'he'
 import prisma from '../lib/prisma'
 import { onboardBlog } from '../lib/websub/onboardBlog'
 import { safeFetch } from '../lib/websub/safeFetch'
+import { homepageUrlOf } from '../lib/websub/homepageUrl'
 
 // Onboards many blogs at once from a plain text file of feed URLs (one per
 // line, '#' comments allowed). We often only have the feed URL for a legacy
@@ -20,7 +21,7 @@ function textOf(value: unknown): string | null {
   return null
 }
 
-async function fetchFeedTitle(feedUrl: string): Promise<string> {
+async function fetchFeedInfo(feedUrl: string): Promise<{ title: string; homepageUrl: string }> {
   const res = await safeFetch(feedUrl)
   if (!res.ok) throw new Error(`Failed to fetch ${feedUrl}: ${res.status}`)
 
@@ -28,7 +29,7 @@ async function fetchFeedTitle(feedUrl: string): Promise<string> {
   const title = textOf(doc.feed?.title) ?? textOf(doc.rss?.channel?.title)
   if (!title) throw new Error(`No <title> found in feed ${feedUrl}`)
 
-  return decode(title)
+  return { title: decode(title), homepageUrl: homepageUrlOf(doc, feedUrl) }
 }
 
 function readFeedUrls(filePath: string): string[] {
@@ -51,9 +52,9 @@ async function main() {
   for (const feedUrl of feedUrls) {
     console.log(`\n=== ${feedUrl} ===`)
     try {
-      const title = await fetchFeedTitle(feedUrl)
+      const { title, homepageUrl } = await fetchFeedInfo(feedUrl)
       const hostname = new URL(feedUrl).hostname
-      await onboardBlog(feedUrl, title, title, `unknown@${hostname}`)
+      await onboardBlog(homepageUrl, title, title, `unknown@${hostname}`, { feedUrlOverride: feedUrl })
       results.push({ feedUrl, ok: true })
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
