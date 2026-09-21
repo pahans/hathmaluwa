@@ -11,24 +11,24 @@ const DESCRIPTION = 'Hathmaluwa syndicates 2000+ Sinhala blogs, bringing the lat
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Hathmaluwa',
+    default: 'hathmaluwa blog reader |Hathmaluwa | හත්මාළුව | சாம்பார்',
     template: '%s - Hathmaluwa',
   },
   description: DESCRIPTION,
   openGraph: {
-    title: 'Hathmaluwa',
+    title: 'hathmaluwa blog reader |Hathmaluwa | හත්මාළුව | சாம்பார்',
     description: DESCRIPTION,
     url: SITE_URL,
     siteName: 'Hathmaluwa',
-    images: [{ url: '/og-image.png', width: 970, height: 230, alt: 'Hathmaluwa' }],
+    images: [{ url: '/badges/hathmaluwa-stacked.png', width: 170, height: 153, alt: 'Hathmaluwa' }],
     locale: 'si_LK',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Hathmaluwa',
+    title: 'hathmaluwa blog reader |Hathmaluwa | හත්මාළුව | சாம்பார்',
     description: DESCRIPTION,
-    images: ['/og-image.png'],
+    images: ['/badges/hathmaluwa-stacked.png'],
   },
 }
 

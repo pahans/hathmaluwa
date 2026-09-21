@@ -1,4 +1,9 @@
+import type { Metadata } from 'next'
 import { Button, Callout, Card, Container, Flex, Heading, Text } from '@radix-ui/themes'
+
+export const metadata: Metadata = {
+  title: 'Admin sign in',
+}
 
 export default async function AdminLogin({
   searchParams,

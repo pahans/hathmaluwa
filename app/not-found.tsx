@@ -6,7 +6,7 @@ import { langOf } from '../lib/lang'
 import prisma from '../lib/prisma'
 
 export const metadata: Metadata = {
-  title: 'Page not found - Hathmaluwa',
+  title: 'Page not found',
 }
 
 export default async function NotFound() {
