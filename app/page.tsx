@@ -1,4 +1,3 @@
-import type { Metadata } from 'next'
 import type { Blog, BlogPost } from '@prisma/client'
 import Layout from '../components/layout'
 import Sidebar from '../components/sidebar'
@@ -6,10 +5,6 @@ import PostCard from '../components/post-card'
 import Pagination from '../components/pagination'
 import Tagline from '../components/tagline'
 import prisma from '../lib/prisma'
-
-export const metadata: Metadata = {
-  title: 'Hathmaluwa',
-}
 
 const POSTS_PER_PAGE = 10
 

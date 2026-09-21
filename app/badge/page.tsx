@@ -4,7 +4,8 @@ import CopyCode from '../../components/copy-code'
 import { SITE_URL } from '../../lib/site'
 
 export const metadata: Metadata = {
-  title: 'Badge - Hathmaluwa',
+  title: 'Badge',
+  description: "Show your readers that your blog is on Hathmaluwa. Pick a badge and copy its embed code.",
 }
 
 // Files live in public/badges. Blog owners paste the snippet into their own site, so it uses absolute URLs.
