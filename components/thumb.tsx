@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { useState } from 'react'
 import { hashIndex } from '../lib/brand'
+import { isOptimizableThumbnailHost } from '../lib/thumbnail'
 
 // Abstract brand-colour fallbacks for posts without a thumbnail. Chosen by a stable hash of the seed.
 const SHAPES = [
@@ -60,7 +61,7 @@ export default function Thumb({ src, seed }: { src: string | null; seed: string 
         height={112}
         loading="lazy"
         referrerPolicy="no-referrer"
-        unoptimized
+        unoptimized={!isOptimizableThumbnailHost(src)}
         onError={() => setBroken(true)}
       />
     )
