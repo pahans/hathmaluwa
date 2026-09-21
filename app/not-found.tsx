@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import type { Prisma } from '@prisma/client'
 import Link from 'next/link'
 import Layout from '../components/layout'
 import ErrorArt from '../components/error-art'
@@ -10,12 +11,22 @@ export const metadata: Metadata = {
 }
 
 export default async function NotFound() {
-  const recentPosts = await prisma.blogPost.findMany({
-    where: { blog: { approved: true, banned: false } },
-    include: { blog: true },
-    orderBy: { timestamp: 'desc' },
-    take: 3,
-  })
+  let recentPosts: Prisma.BlogPostGetPayload<{ include: { blog: true } }>[] = []
+
+  // Prerendered at build time (and served if the DB is briefly down), so a
+  // missing DATABASE_URL or query failure must not break this page.
+  if (process.env.DATABASE_URL) {
+    try {
+      recentPosts = await prisma.blogPost.findMany({
+        where: { blog: { approved: true, banned: false } },
+        include: { blog: true },
+        orderBy: { timestamp: 'desc' },
+        take: 3,
+      })
+    } catch {
+      recentPosts = []
+    }
+  }
 
   return (
     <Layout>
