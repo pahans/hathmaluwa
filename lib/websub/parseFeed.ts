@@ -64,18 +64,20 @@ function isTooSmall(width: string | undefined, height: string | undefined): bool
 }
 
 // Blogger/Blogspot's feed thumbnails are served through its resizing proxy
-// at the fixed default size ".../s72-c/image.jpg". Google's newer image
-// proxy host (blogger.googleusercontent.com/img/b/...) 400s if that size
-// segment is removed outright - it requires *some* size token - so swap it
-// for a large one instead of stripping it, which also works on the older
-// bp.blogspot.com CDN. Matches only this literal token (rather than any
-// "/sNN(-c)?/" segment) so unrelated numeric path segments in other images'
-// URLs are left alone.
-const BLOGGER_SIZE_SEGMENT = '/s72-c/'
+// at the fixed default size ".../s72-c/image.jpg" - or, for non-square
+// images, the compound form ".../s72-w400-h395-c/image.jpg". Google's newer
+// image proxy host (blogger.googleusercontent.com/img/b/...) 400s if the
+// size segment is removed outright - it requires *some* size token - so
+// swap it for a large one instead of stripping it, which also works on the
+// older bp.blogspot.com CDN. Matches only the fixed "s72" default (plain or
+// compound) so other, already-large size segments (".../s320/",
+// ".../s1600/") and unrelated numeric path segments in other images' URLs
+// are left alone.
+const BLOGGER_SIZE_SEGMENT = /\/s72(-w\d+-h\d+)?-c\//
 const BLOGGER_LARGE_SIZE_SEGMENT = '/s1600/'
 
 function normalizeThumbnailUrl(url: string | null): string | null {
-  return url ? url.split(BLOGGER_SIZE_SEGMENT).join(BLOGGER_LARGE_SIZE_SEGMENT) : url
+  return url ? url.replace(BLOGGER_SIZE_SEGMENT, BLOGGER_LARGE_SIZE_SEGMENT) : url
 }
 
 // Feeds that embed HTML content often carry their lead image inline instead
