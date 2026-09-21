@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useState } from 'react'
 import { hashIndex } from '../lib/brand'
 
@@ -51,8 +52,7 @@ export default function Thumb({ src, seed }: { src: string | null; seed: string 
 
   if (src && !broken) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
+      <Image
         className="hm-thumb"
         src={src}
         alt=""
@@ -60,6 +60,7 @@ export default function Thumb({ src, seed }: { src: string | null; seed: string 
         height={112}
         loading="lazy"
         referrerPolicy="no-referrer"
+        unoptimized
         onError={() => setBroken(true)}
       />
     )

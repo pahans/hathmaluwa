@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Layout from '../../components/layout'
 import CopyCode from '../../components/copy-code'
 import { SITE_URL } from '../../lib/site'
@@ -35,8 +36,7 @@ export default function Badge() {
           {BADGES.map((badge) => (
             <section key={badge.id} className="hm-badge-card" aria-label={`${badge.title} badge`}>
               <div className="hm-badge-stage">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={`/badges/${badge.file}`}
                   width={badge.width}
                   height={badge.height}

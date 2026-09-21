@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import ThemeToggle from './theme-toggle';
@@ -21,8 +22,7 @@ function NavBar() {
       <div className="hm-header-inner">
         <Link className="hm-brand" href="/" aria-label="Hathmaluwa home">
           {/* The logo is used exactly as supplied. See design/hathmaluwa/logos-README.md. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src="/badges/hathmaluwa-horizontal.png"
             width={131}
             height={40}
