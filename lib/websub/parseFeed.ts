@@ -63,6 +63,17 @@ function isTooSmall(width: string | undefined, height: string | undefined): bool
   return (Number.isFinite(w) && w < MIN_THUMBNAIL_DIMENSION) || (Number.isFinite(h) && h < MIN_THUMBNAIL_DIMENSION)
 }
 
+// Blogger/Blogspot serves feed images through its resizing proxy, which
+// encodes the requested size as a path segment like ".../s72-c/image.jpg" -
+// feeds commonly link the icon-sized crop rather than the original. Per
+// https://docs.themeisle.com/feedzy-rss-feeds/how-to-fetch-big-image-for-blogger-blog-feed,
+// stripping that segment returns the original, full-resolution image.
+const BLOGGER_SIZE_SEGMENT = /\/s\d+(-c)?\//
+
+function normalizeThumbnailUrl(url: string | null): string | null {
+  return url ? url.replace(BLOGGER_SIZE_SEGMENT, '/') : url
+}
+
 // Feeds that embed HTML content often carry their lead image inline instead
 // of a separate <media:thumbnail>/enclosure. Scan every <img> rather than
 // just the first one, since posts often lead with a small icon/badge before
@@ -135,7 +146,7 @@ function parseAtomEntry(entry: Record<string, any>): ParsedFeedEntry | null {
     url,
     timestamp: new Date(published),
     summary: rawSummary ? plainTextExcerpt(rawSummary) : null,
-    thumbnail: atomThumbnail(entry, links) ?? (rawSummary ? firstImageUrl(rawSummary) : null),
+    thumbnail: normalizeThumbnailUrl(atomThumbnail(entry, links) ?? (rawSummary ? firstImageUrl(rawSummary) : null)),
   }
 }
 
@@ -170,11 +181,12 @@ function parseRssItem(item: Record<string, any>): ParsedFeedEntry | null {
     url,
     timestamp: new Date(pubDate),
     summary: rawSummary ? plainTextExcerpt(rawSummary) : null,
-    thumbnail:
+    thumbnail: normalizeThumbnailUrl(
       item.enclosure?.['@_url'] ??
-      mediaThumbnailUrl ??
-      (rawSummary ? firstImageUrl(rawSummary) : null) ??
-      mediaThumbnail?.['@_url'] ??
-      null,
+        mediaThumbnailUrl ??
+        (rawSummary ? firstImageUrl(rawSummary) : null) ??
+        mediaThumbnail?.['@_url'] ??
+        null,
+    ),
   }
 }
