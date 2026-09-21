@@ -1,12 +1,14 @@
-import '@radix-ui/themes/styles.css'
-import '../styles/tokens.css'
-import '../styles/site.css'
-import type { Metadata } from 'next'
-import type { ReactNode } from 'react'
-import ThemeProvider from './theme-provider'
-import { SITE_URL } from '../lib/site'
+import '@radix-ui/themes/styles.css';
+import '../styles/tokens.css';
+import '../styles/site.css';
+import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
+import ThemeProvider from './theme-provider';
+import { SITE_URL } from '../lib/site';
+import { Analytics } from '@vercel/analytics/next';
 
-const DESCRIPTION = 'Hathmaluwa syndicates 2000+ Sinhala blogs, bringing the latest posts from Sri Lanka’s blogging community together in one feed.'
+const DESCRIPTION =
+  'Hathmaluwa syndicates 2000+ Sinhala blogs, bringing the latest posts from Sri Lanka’s blogging community together in one feed.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -30,12 +32,12 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     images: ['/badges/hathmaluwa-stacked.png'],
   },
-}
+};
 
 // Applies the saved (or system) theme before first paint so the page never flashes the wrong theme.
 // Sets the "dark"/"light" class that Radix Themes (appearance="inherit") reads, and data-theme when
 // the visitor made an explicit choice. Keep in sync with components/theme-toggle.tsx.
-const themeInit = `(function(){try{var s=localStorage.getItem('hm-theme');var saved=s==='dark'||s==='light';var t=saved?s:(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');var r=document.documentElement;r.classList.add(t);r.classList.remove(t==='dark'?'light':'dark');if(saved)r.setAttribute('data-theme',s)}catch(e){}})()`
+const themeInit = `(function(){try{var s=localStorage.getItem('hm-theme');var saved=s==='dark'||s==='light';var t=saved?s:(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');var r=document.documentElement;r.classList.add(t);r.classList.remove(t==='dark'?'light':'dark');if(saved)r.setAttribute('data-theme',s)}catch(e){}})()`;
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -53,7 +55,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body>
         <ThemeProvider>{children}</ThemeProvider>
+        <Analytics />
       </body>
     </html>
-  )
+  );
 }
