@@ -3,6 +3,7 @@ import '../styles/tokens.css';
 import '../styles/site.css';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import NextTopLoader from 'nextjs-toploader';
 import ThemeProvider from './theme-provider';
 import { SITE_URL } from '../lib/site';
 import { Analytics } from '@vercel/analytics/next';
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
       </head>
       <body>
+        <NextTopLoader color="var(--navy)" showSpinner={false} />
         <ThemeProvider>{children}</ThemeProvider>
         <Analytics />
       </body>
