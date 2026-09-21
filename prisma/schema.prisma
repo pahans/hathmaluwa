@@ -25,6 +25,7 @@ model Blog {
   leaseExpiresAt     DateTime?          @map("lease_expires_at") @db.Timestamptz(3)
   lastVerifiedAt     DateTime?          @map("last_verified_at") @db.Timestamptz(3)
   lastPolledAt       DateTime?          @map("last_polled_at") @db.Timestamptz(3)
+  pollFailureCount   Int                @default(0) @map("poll_failure_count")
   createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt          DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
   posts              BlogPost[]
@@ -38,6 +39,7 @@ enum SubscriptionStatus {
   expiring
   failed
   unsupported
+  inactive
 
   @@map("subscription_status")
 }

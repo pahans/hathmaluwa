@@ -26,6 +26,8 @@ function statusColor(status: Blog['subscriptionStatus']): ComponentProps<typeof 
       return 'amber'
     case 'failed':
       return 'red'
+    case 'inactive':
+      return 'gray'
     default:
       return 'gray'
   }
