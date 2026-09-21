@@ -2,10 +2,13 @@ name: Poll unsupported blogs
 
 on:
   schedule:
-    # Every 30 minutes. Only covers blogs whose feed has no WebSub hub
-    # (subscriptionStatus 'unsupported'); hub-backed blogs get pushed via the
-    # callback route instead and are untouched by this job.
-    - cron: '*/30 * * * *'
+    # Every 30 minutes, offset from :00/:30. GitHub queues scheduled runs at
+    # those exact marks alongside everyone else's crons, which can delay
+    # delivery by hours; an off-beat minute clears the queue much faster.
+    # Only covers blogs whose feed has no WebSub hub (subscriptionStatus
+    # 'unsupported'); hub-backed blogs get pushed via the callback route
+    # instead and are untouched by this job.
+    - cron: '7,37 * * * *'
   workflow_dispatch: {}
 
 jobs:
