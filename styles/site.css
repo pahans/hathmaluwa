@@ -244,6 +244,13 @@ body { background: var(--surface); color: var(--ink); margin: 0; }
   .hm-badge-steps li b { color: var(--ink); font-weight: 600; }
   .hm-badge-steps code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; background: var(--plate); padding: 1px 6px; border-radius: var(--radius-sm); color: var(--ink); }
 
+  .hm-contact-head { max-width: 640px; margin-bottom: var(--space-4); }
+  .hm-contact-head h1 { font-family: var(--font-serif); font-size: 32px; line-height: 38px; margin: 0 0 var(--space-2); text-wrap: balance; }
+  .hm-contact-head p { margin: 0; color: var(--ink-muted); }
+  .hm-contact-email { text-decoration: none; }
+  .hm-contact-note { margin: var(--space-4) 0 0; color: var(--ink-muted); }
+  .hm-contact-note a { color: var(--navy); font-weight: 600; }
+
   @media (min-width: 900px) {
     .hm-header-inner { flex-wrap: nowrap; }
     .hm-nav { order: 0; flex: none; overflow: visible; }
