@@ -56,6 +56,31 @@ body { background: var(--surface); color: var(--ink); margin: 0; }
   }
   .hm-nav a:hover { color: var(--ink); background: var(--plate); }
   .hm-nav a[aria-current="page"] { color: var(--ink); font-weight: 600; }
+  .hm-nav-pending {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-left: 6px;
+    border-radius: 999px;
+    background: var(--navy);
+    opacity: 0;
+    visibility: hidden;
+  }
+  .hm-nav-pending.is-pending {
+    visibility: visible;
+    animation-name: hm-nav-pending-in, hm-nav-pending-pulse;
+    animation-duration: 200ms, 1s;
+    animation-delay: 100ms, 100ms;
+    animation-timing-function: ease, ease-in-out;
+    animation-iteration-count: 1, infinite;
+    animation-fill-mode: forwards, none;
+  }
+  @keyframes hm-nav-pending-in {
+    to { opacity: 1; }
+  }
+  @keyframes hm-nav-pending-pulse {
+    50% { opacity: 0.35; }
+  }
   .hm-search { flex: 1 1 140px; min-width: 0; margin-left: auto; max-width: 280px; }
   .hm-search input {
     width: 100%;
