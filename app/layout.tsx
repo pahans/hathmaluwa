@@ -4,9 +4,32 @@ import '../styles/site.css'
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import ThemeProvider from './theme-provider'
+import { SITE_URL } from '../lib/site'
+
+const DESCRIPTION = 'Hathmaluwa syndicates 2000+ Sinhala blogs, bringing the latest posts from Sri Lanka’s blogging community together in one feed.'
 
 export const metadata: Metadata = {
-  title: 'Hathmaluwa',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: 'Hathmaluwa',
+    template: '%s - Hathmaluwa',
+  },
+  description: DESCRIPTION,
+  openGraph: {
+    title: 'Hathmaluwa',
+    description: DESCRIPTION,
+    url: SITE_URL,
+    siteName: 'Hathmaluwa',
+    images: [{ url: '/og-image.png', width: 970, height: 230, alt: 'Hathmaluwa' }],
+    locale: 'si_LK',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Hathmaluwa',
+    description: DESCRIPTION,
+    images: ['/og-image.png'],
+  },
 }
 
 // Applies the saved (or system) theme before first paint so the page never flashes the wrong theme.

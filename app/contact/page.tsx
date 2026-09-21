@@ -3,7 +3,8 @@ import Link from 'next/link'
 import Layout from '../../components/layout'
 
 export const metadata: Metadata = {
-  title: 'Contact - Hathmaluwa',
+  title: 'Contact',
+  description: 'Questions, feedback or something that looks wrong on Hathmaluwa? Get in touch.',
 }
 
 const CONTACT_EMAIL = 'pahan123@gmail.com'
