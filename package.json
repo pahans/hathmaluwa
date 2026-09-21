@@ -8,6 +8,7 @@
     "add-blog": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/add-blog.ts",
     "bulk-add-blogs": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/bulk-add-blogs.ts",
     "backfill-blog": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/backfill-blog.ts",
+    "refresh-thumbnails": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/refresh-thumbnails.ts",
     "fix-blog-homepage-urls": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/fix-blog-homepage-urls.ts",
     "dedupe-blog-stubs": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/dedupe-blog-stubs.ts",
     "fix-blog-authors": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/fix-blog-authors.ts",
