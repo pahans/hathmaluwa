@@ -1,7 +1,12 @@
 import { redirect } from 'next/navigation'
+import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import { Box, Button, Flex, Heading, Text } from '@radix-ui/themes'
 import { getAdminSession } from '../../../lib/adminAuth'
+
+export const metadata: Metadata = {
+  title: 'Admin',
+}
 
 // The real (not just optimistic) auth check - proxy.ts only confirms a
 // session cookie exists, this verifies its signature and re-checks the

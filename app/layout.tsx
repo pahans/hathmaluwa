@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     url: SITE_URL,
     siteName: 'Hathmaluwa',
-    images: [{ url: '/og-image.png', width: 970, height: 230, alt: 'Hathmaluwa' }],
+    images: [{ url: '/badges/hathmaluwa-stacked.png', width: 170, height: 153, alt: 'Hathmaluwa' }],
     locale: 'si_LK',
     type: 'website',
   },
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Hathmaluwa',
     description: DESCRIPTION,
-    images: ['/og-image.png'],
+    images: ['/badges/hathmaluwa-stacked.png'],
   },
 }
 

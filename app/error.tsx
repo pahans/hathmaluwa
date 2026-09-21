@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import Link from 'next/link'
 import Layout from '../components/layout'
 import ErrorArt from '../components/error-art'
@@ -11,6 +12,12 @@ export default function Error({
   error: Error & { digest?: string }
   retry: () => void
 }) {
+  // error.tsx is a client boundary rendered inside the root layout, so it can't export
+  // Next.js `metadata` - set the title directly instead.
+  useEffect(() => {
+    document.title = 'Something went wrong - Hathmaluwa'
+  }, [])
+
   return (
     <Layout>
       <main className="hm-err">

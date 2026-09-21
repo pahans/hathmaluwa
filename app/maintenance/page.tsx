@@ -4,7 +4,7 @@ import ErrorArt from '../../components/error-art'
 import CheckAgainButton from '../../components/check-again-button'
 
 export const metadata: Metadata = {
-  title: "We'll be back shortly - Hathmaluwa",
+  title: "We'll be back shortly",
 }
 
 export default function Maintenance() {
