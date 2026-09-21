@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import NavLinkStatus from './nav-link-status';
 import ThemeToggle from './theme-toggle';
 
 const LINKS = [
@@ -39,7 +38,6 @@ function NavBar() {
               aria-current={pathname === link.href ? 'page' : undefined}
             >
               {link.label}
-              <NavLinkStatus />
             </Link>
           ))}
         </nav>
