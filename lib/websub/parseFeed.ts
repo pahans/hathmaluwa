@@ -63,15 +63,16 @@ function isTooSmall(width: string | undefined, height: string | undefined): bool
   return (Number.isFinite(w) && w < MIN_THUMBNAIL_DIMENSION) || (Number.isFinite(h) && h < MIN_THUMBNAIL_DIMENSION)
 }
 
-// Blogger/Blogspot serves feed images through its resizing proxy, which
-// encodes the requested size as a path segment like ".../s72-c/image.jpg" -
-// feeds commonly link the icon-sized crop rather than the original. Per
+// Blogger/Blogspot's feed thumbnails are served through its resizing proxy
+// at the fixed default size ".../s72-c/image.jpg". Per
 // https://docs.themeisle.com/feedzy-rss-feeds/how-to-fetch-big-image-for-blogger-blog-feed,
-// stripping that segment returns the original, full-resolution image.
-const BLOGGER_SIZE_SEGMENT = /\/s\d+(-c)?\//
+// stripping that exact segment returns the original, full-resolution image -
+// matching only this literal token (rather than any "/sNN(-c)?/" segment)
+// avoids mangling unrelated numeric path segments in other images' URLs.
+const BLOGGER_SIZE_SEGMENT = '/s72-c/'
 
 function normalizeThumbnailUrl(url: string | null): string | null {
-  return url ? url.replace(BLOGGER_SIZE_SEGMENT, '/') : url
+  return url ? url.split(BLOGGER_SIZE_SEGMENT).join('/') : url
 }
 
 // Feeds that embed HTML content often carry their lead image inline instead
