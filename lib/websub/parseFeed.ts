@@ -64,15 +64,18 @@ function isTooSmall(width: string | undefined, height: string | undefined): bool
 }
 
 // Blogger/Blogspot's feed thumbnails are served through its resizing proxy
-// at the fixed default size ".../s72-c/image.jpg". Per
-// https://docs.themeisle.com/feedzy-rss-feeds/how-to-fetch-big-image-for-blogger-blog-feed,
-// stripping that exact segment returns the original, full-resolution image -
-// matching only this literal token (rather than any "/sNN(-c)?/" segment)
-// avoids mangling unrelated numeric path segments in other images' URLs.
+// at the fixed default size ".../s72-c/image.jpg". Google's newer image
+// proxy host (blogger.googleusercontent.com/img/b/...) 400s if that size
+// segment is removed outright - it requires *some* size token - so swap it
+// for a large one instead of stripping it, which also works on the older
+// bp.blogspot.com CDN. Matches only this literal token (rather than any
+// "/sNN(-c)?/" segment) so unrelated numeric path segments in other images'
+// URLs are left alone.
 const BLOGGER_SIZE_SEGMENT = '/s72-c/'
+const BLOGGER_LARGE_SIZE_SEGMENT = '/s1600/'
 
 function normalizeThumbnailUrl(url: string | null): string | null {
-  return url ? url.split(BLOGGER_SIZE_SEGMENT).join('/') : url
+  return url ? url.split(BLOGGER_SIZE_SEGMENT).join(BLOGGER_LARGE_SIZE_SEGMENT) : url
 }
 
 // Feeds that embed HTML content often carry their lead image inline instead
