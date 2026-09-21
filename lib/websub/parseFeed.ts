@@ -63,6 +63,49 @@ function isTooSmall(width: string | undefined, height: string | undefined): bool
   return (Number.isFinite(w) && w < MIN_THUMBNAIL_DIMENSION) || (Number.isFinite(h) && h < MIN_THUMBNAIL_DIMENSION)
 }
 
+// Blogger/Blogspot's feed thumbnails are served through its resizing proxy
+// at the fixed default size ".../s72-c/image.jpg" - or, for non-square
+// images, the compound form ".../s72-w400-h395-c/image.jpg". Google's newer
+// image proxy host (blogger.googleusercontent.com/img/b/...) 400s if the
+// size segment is removed outright - it requires *some* size token - so
+// swap it for a large one instead of stripping it, which also works on the
+// older bp.blogspot.com CDN. Matches only the fixed "s72" default (plain or
+// compound) so other, already-large size segments (".../s320/",
+// ".../s1600/") and unrelated numeric path segments in other images' URLs
+// are left alone.
+const BLOGGER_PATH_SIZE_SEGMENT = /\/s72(-w\d+-h\d+)?-c\//
+const BLOGGER_LARGE_SIZE_SEGMENT = '/s1600/'
+
+// The other Blogger image host (.../img/a/<token>) encodes the same fixed
+// "72" default as a "=s72-c" or "=s72-wNN-hNN-c" suffix instead of a path
+// segment - same fix, different syntax. Anchored to end-of-string since the
+// size token is always the last thing on these URLs.
+const BLOGGER_QUERY_SIZE_SUFFIX = /=s72(-w\d+-h\d+)?-c$/
+const BLOGGER_LARGE_SIZE_SUFFIX = '=s1600'
+
+// YouTube's default oEmbed/RSS thumbnail is a 120x90 crop; every video that
+// has one also has the much larger hqdefault (480x360), so prefer that.
+// Other sizes (mqdefault, hqdefault, sddefault, maxresdefault) are left
+// alone - only the smallest one is worth upgrading.
+const YOUTUBE_DEFAULT_THUMBNAIL = /\/default\.jpg$/
+const YOUTUBE_LARGE_THUMBNAIL = '/hqdefault.jpg'
+
+function normalizeThumbnailUrl(url: string | null): string | null {
+  if (!url) return url
+
+  if (url.includes('blogger.googleusercontent.com') || url.includes('bp.blogspot.com')) {
+    return url
+      .replace(BLOGGER_PATH_SIZE_SEGMENT, BLOGGER_LARGE_SIZE_SEGMENT)
+      .replace(BLOGGER_QUERY_SIZE_SUFFIX, BLOGGER_LARGE_SIZE_SUFFIX)
+  }
+
+  if (url.includes('ytimg.com') || url.includes('img.youtube.com')) {
+    return url.replace(YOUTUBE_DEFAULT_THUMBNAIL, YOUTUBE_LARGE_THUMBNAIL)
+  }
+
+  return url
+}
+
 // Feeds that embed HTML content often carry their lead image inline instead
 // of a separate <media:thumbnail>/enclosure. Scan every <img> rather than
 // just the first one, since posts often lead with a small icon/badge before
@@ -135,7 +178,7 @@ function parseAtomEntry(entry: Record<string, any>): ParsedFeedEntry | null {
     url,
     timestamp: new Date(published),
     summary: rawSummary ? plainTextExcerpt(rawSummary) : null,
-    thumbnail: atomThumbnail(entry, links) ?? (rawSummary ? firstImageUrl(rawSummary) : null),
+    thumbnail: normalizeThumbnailUrl(atomThumbnail(entry, links) ?? (rawSummary ? firstImageUrl(rawSummary) : null)),
   }
 }
 
@@ -170,11 +213,12 @@ function parseRssItem(item: Record<string, any>): ParsedFeedEntry | null {
     url,
     timestamp: new Date(pubDate),
     summary: rawSummary ? plainTextExcerpt(rawSummary) : null,
-    thumbnail:
+    thumbnail: normalizeThumbnailUrl(
       item.enclosure?.['@_url'] ??
-      mediaThumbnailUrl ??
-      (rawSummary ? firstImageUrl(rawSummary) : null) ??
-      mediaThumbnail?.['@_url'] ??
-      null,
+        mediaThumbnailUrl ??
+        (rawSummary ? firstImageUrl(rawSummary) : null) ??
+        mediaThumbnail?.['@_url'] ??
+        null,
+    ),
   }
 }
