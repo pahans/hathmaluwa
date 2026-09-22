@@ -1,7 +1,8 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import prisma from '../../../lib/prisma'
+import { POSTS_CACHE_TAG } from '../../../lib/posts'
 import { getAdminSession } from '../../../lib/adminAuth'
 import { sendSubscription } from '../../../lib/websub/subscribe'
 import { backfillBlog } from '../../../lib/websub/backfillBlog'
@@ -17,12 +18,14 @@ async function requireAdmin() {
 export async function approveBlogAction(blogId: string) {
   await requireAdmin()
   await prisma.blog.update({ where: { id: blogId }, data: { approved: true } })
+  revalidateTag(POSTS_CACHE_TAG, 'max')
   revalidatePath('/admin')
 }
 
 export async function unpublishBlogAction(blogId: string) {
   await requireAdmin()
   await prisma.blog.update({ where: { id: blogId }, data: { approved: false } })
+  revalidateTag(POSTS_CACHE_TAG, 'max')
   revalidatePath('/admin')
 }
 
@@ -36,6 +39,7 @@ export async function banBlogAction(blogId: string, formData: FormData) {
     where: { id: blogId },
     data: { banned: true, bannedAt: new Date(), banReason: reason || null },
   })
+  revalidateTag(POSTS_CACHE_TAG, 'max')
   revalidatePath('/admin')
 }
 
@@ -45,6 +49,7 @@ export async function unbanBlogAction(blogId: string) {
     where: { id: blogId },
     data: { banned: false, bannedAt: null, banReason: null },
   })
+  revalidateTag(POSTS_CACHE_TAG, 'max')
   revalidatePath('/admin')
 }
 
@@ -68,6 +73,7 @@ export async function deleteBlogAction(blogId: string) {
   }
 
   await prisma.blog.delete({ where: { id: blogId } })
+  revalidateTag(POSTS_CACHE_TAG, 'max')
   revalidatePath('/admin')
 }
 

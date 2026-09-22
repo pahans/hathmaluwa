@@ -1,5 +1,7 @@
 import type { Blog } from '@prisma/client'
+import { revalidateTag } from 'next/cache'
 import prisma from '../prisma'
+import { POSTS_CACHE_TAG } from '../posts'
 import { parseFeed } from './parseFeed'
 import { safeFetch } from './safeFetch'
 
@@ -35,6 +37,8 @@ export async function backfillBlog(blog: Pick<Blog, 'id' | 'feedUrl'>): Promise<
       }),
     ),
   )
+
+  if (entries.length > 0) revalidateTag(POSTS_CACHE_TAG, 'max')
 
   return entries.length
 }
