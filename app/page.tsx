@@ -1,13 +1,14 @@
 import { Suspense } from 'react'
 import { connection } from 'next/server'
 import Layout from '../components/layout'
-import Sidebar from '../components/sidebar'
-import PostCard from '../components/post-card'
+import Sidebar, { SidebarSkeleton } from '../components/sidebar'
+import PostCard, { PostCardSkeleton } from '../components/post-card'
 import Pagination from '../components/pagination'
 import Tagline from '../components/tagline'
 import { getLatestPosts, searchPosts } from '../lib/posts'
 
 const POSTS_PER_PAGE = 10
+const FEED_SKELETON_ROWS = 6
 
 export default function Home({
   searchParams,
@@ -20,7 +21,7 @@ export default function Home({
         <Suspense fallback={<FeedFallback />}>
           <FeedSection searchParams={searchParams} />
         </Suspense>
-        <Suspense fallback={null}>
+        <Suspense fallback={<SidebarSkeleton />}>
           <SidebarSection />
         </Suspense>
       </main>
@@ -34,6 +35,12 @@ function FeedFallback() {
       <div className="hm-feed-head">
         <h1 id="hm-feed-title">Latest posts</h1>
         <Tagline />
+      </div>
+
+      <div className="hm-posts">
+        {Array.from({ length: FEED_SKELETON_ROWS }, (_, i) => (
+          <PostCardSkeleton key={i} />
+        ))}
       </div>
     </section>
   )
