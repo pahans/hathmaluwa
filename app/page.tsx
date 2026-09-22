@@ -1,3 +1,5 @@
+import { Suspense } from 'react'
+import { connection } from 'next/server'
 import Layout from '../components/layout'
 import Sidebar from '../components/sidebar'
 import PostCard from '../components/post-card'
@@ -7,7 +9,37 @@ import { getLatestPosts, searchPosts } from '../lib/posts'
 
 const POSTS_PER_PAGE = 10
 
-export default async function Home({
+export default function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; page?: string }>
+}) {
+  return (
+    <Layout>
+      <main className="hm-page">
+        <Suspense fallback={<FeedFallback />}>
+          <FeedSection searchParams={searchParams} />
+        </Suspense>
+        <Suspense fallback={null}>
+          <SidebarSection />
+        </Suspense>
+      </main>
+    </Layout>
+  )
+}
+
+function FeedFallback() {
+  return (
+    <section className="hm-feed" aria-labelledby="hm-feed-title">
+      <div className="hm-feed-head">
+        <h1 id="hm-feed-title">Latest posts</h1>
+        <Tagline />
+      </div>
+    </section>
+  )
+}
+
+async function FeedSection({
   searchParams,
 }: {
   searchParams: Promise<{ q?: string; page?: string }>
@@ -16,12 +48,40 @@ export default async function Home({
   const q = typeof params.q === 'string' ? params.q.trim().slice(0, 100) : ''
   const requestedPage = typeof params.page === 'string' ? parseInt(params.page, 10) : 1
 
-  const latest = await getLatestPosts(30)
-
   // A search replaces the feed only. The popular-posts sidebar always draws from the latest posts.
   // Unapproved blogs (pending /signup review) and banned blogs never show up here or in search.
   const { matches, totalPages, currentPage } = await searchPosts(q, requestedPage, POSTS_PER_PAGE)
 
+  return (
+    <section className="hm-feed" aria-labelledby="hm-feed-title">
+      <div className="hm-feed-head">
+        <h1 id="hm-feed-title">{q ? `Results for “${q}”` : 'Latest posts'}</h1>
+        <Tagline />
+      </div>
+
+      {matches.length > 0 ? (
+        <div className="hm-posts">
+          {matches.map((post) => (
+            <PostCard key={post.id} post={post} />
+          ))}
+        </div>
+      ) : (
+        <p className="hm-empty" role="status">
+          {q ? 'No posts match your search. Try a shorter word.' : 'No posts yet.'}
+        </p>
+      )}
+
+      <Pagination currentPage={currentPage} totalPages={totalPages} query={q} />
+    </section>
+  )
+}
+
+async function SidebarSection() {
+  const latest = await getLatestPosts(30)
+
+  // Bucketing by "now" needs to run per-request rather than being baked into
+  // the cached post list, so defer to request time before reading it.
+  await connection()
   const now = Date.now()
   const oneDayMs = 24 * 60 * 60 * 1000
   const recentPosts = latest.filter((post) => now - post.timestamp.getTime() <= 2 * oneDayMs).slice(0, 10)
@@ -32,32 +92,5 @@ export default async function Home({
     })
     .slice(0, 10)
 
-  return (
-    <Layout>
-      <main className="hm-page">
-        <section className="hm-feed" aria-labelledby="hm-feed-title">
-          <div className="hm-feed-head">
-            <h1 id="hm-feed-title">{q ? `Results for “${q}”` : 'Latest posts'}</h1>
-            <Tagline />
-          </div>
-
-          {matches.length > 0 ? (
-            <div className="hm-posts">
-              {matches.map((post) => (
-                <PostCard key={post.id} post={post} />
-              ))}
-            </div>
-          ) : (
-            <p className="hm-empty" role="status">
-              {q ? 'No posts match your search. Try a shorter word.' : 'No posts yet.'}
-            </p>
-          )}
-
-          <Pagination currentPage={currentPage} totalPages={totalPages} query={q} />
-        </section>
-
-        <Sidebar recentPosts={recentPosts} lastWeekPosts={lastWeekPosts} />
-      </main>
-    </Layout>
-  )
+  return <Sidebar recentPosts={recentPosts} lastWeekPosts={lastWeekPosts} />
 }

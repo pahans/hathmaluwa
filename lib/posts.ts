@@ -1,86 +1,89 @@
 import type { Blog, BlogPost } from '@prisma/client'
-import { unstable_cache } from 'next/cache'
+import { cacheLife, cacheTag } from 'next/cache'
 import prisma from './prisma'
 
 export type PostWithBlog = BlogPost & { blog: Blog }
 
-// unstable_cache serializes its return value through JSON: a cache miss
-// hands back the real Date from Prisma, but a cache hit hands back whatever
-// survived that round trip, where Date becomes a string. Every exported
-// function here re-hydrates timestamps via toPost() so callers always see a
-// real Date regardless of hit or miss.
-type SerializedPostWithBlog = Omit<PostWithBlog, 'timestamp'> & { timestamp: string | Date }
-
-function toPost(post: SerializedPostWithBlog): PostWithBlog {
-  return { ...post, timestamp: new Date(post.timestamp) }
-}
-
 // Shared tag for revalidateTag() - anything that changes which posts are
 // visible (new posts landing, a blog being approved/banned/deleted) should
-// invalidate this tag. 300s matches the /feed route's existing s-maxage.
+// invalidate this tag.
 export const POSTS_CACHE_TAG = 'posts'
-const REVALIDATE_SECONDS = 300
 
-const getLatestPostsCached = unstable_cache(
-  async (limit: number): Promise<SerializedPostWithBlog[]> => {
-    return prisma.blogPost.findMany({
+export async function getLatestPosts(limit: number): Promise<PostWithBlog[]> {
+  'use cache'
+  // expire must stay under 5 minutes so this is excluded from the build's
+  // static shell (a "dynamic hole" resolved at request time instead) - at
+  // next build there's no live DATABASE_URL, so it can't be prerendered.
+  cacheLife({ revalidate: 60, expire: 240 })
+  cacheTag(POSTS_CACHE_TAG)
+
+  return prisma.blogPost.findMany({
+    where: { blog: { approved: true, banned: false } },
+    include: { blog: true },
+    orderBy: { timestamp: 'desc' },
+    take: limit,
+  })
+}
+
+// For app/not-found.tsx: prerendered at build time as part of the static
+// 404 shell, so this needs a cacheLife long enough to be included in it
+// (unlike getLatestPosts/searchPosts, which stay request-time). Missing or
+// failing DB access degrades to an empty list rather than breaking the page.
+export async function getFallbackRecentPosts(limit: number): Promise<PostWithBlog[]> {
+  'use cache'
+  cacheLife('hours')
+  cacheTag(POSTS_CACHE_TAG)
+
+  if (!process.env.DATABASE_URL) return []
+
+  try {
+    return await prisma.blogPost.findMany({
       where: { blog: { approved: true, banned: false } },
       include: { blog: true },
       orderBy: { timestamp: 'desc' },
       take: limit,
     })
-  },
-  ['latest-posts'],
-  { tags: [POSTS_CACHE_TAG], revalidate: REVALIDATE_SECONDS },
-)
-
-export async function getLatestPosts(limit: number): Promise<PostWithBlog[]> {
-  const posts = await getLatestPostsCached(limit)
-  return posts.map(toPost)
+  } catch {
+    return []
+  }
 }
-
-const searchPostsCached = unstable_cache(
-  async (
-    q: string,
-    page: number,
-    perPage: number,
-  ): Promise<{ matches: SerializedPostWithBlog[]; totalPages: number; currentPage: number }> => {
-    const where = {
-      blog: { approved: true, banned: false },
-      ...(q
-        ? {
-            OR: [
-              { postTitle: { contains: q, mode: 'insensitive' as const } },
-              { summary: { contains: q, mode: 'insensitive' as const } },
-              { blog: { name: { contains: q, mode: 'insensitive' as const } } },
-            ],
-          }
-        : {}),
-    }
-
-    const matchCount = await prisma.blogPost.count({ where })
-    const totalPages = Math.max(1, Math.ceil(matchCount / perPage))
-    const currentPage = Math.min(Math.max(page || 1, 1), totalPages)
-
-    const matches = await prisma.blogPost.findMany({
-      where,
-      include: { blog: true },
-      orderBy: { timestamp: 'desc' },
-      skip: (currentPage - 1) * perPage,
-      take: perPage,
-    })
-
-    return { matches, totalPages, currentPage }
-  },
-  ['search-posts'],
-  { tags: [POSTS_CACHE_TAG], revalidate: REVALIDATE_SECONDS },
-)
 
 export async function searchPosts(
   q: string,
   page: number,
   perPage: number,
 ): Promise<{ matches: PostWithBlog[]; totalPages: number; currentPage: number }> {
-  const { matches, totalPages, currentPage } = await searchPostsCached(q, page, perPage)
-  return { matches: matches.map(toPost), totalPages, currentPage }
+  'use cache'
+  // expire must stay under 5 minutes so this is excluded from the build's
+  // static shell (a "dynamic hole" resolved at request time instead) - at
+  // next build there's no live DATABASE_URL, so it can't be prerendered.
+  cacheLife({ revalidate: 60, expire: 240 })
+  cacheTag(POSTS_CACHE_TAG)
+
+  const where = {
+    blog: { approved: true, banned: false },
+    ...(q
+      ? {
+          OR: [
+            { postTitle: { contains: q, mode: 'insensitive' as const } },
+            { summary: { contains: q, mode: 'insensitive' as const } },
+            { blog: { name: { contains: q, mode: 'insensitive' as const } } },
+          ],
+        }
+      : {}),
+  }
+
+  const matchCount = await prisma.blogPost.count({ where })
+  const totalPages = Math.max(1, Math.ceil(matchCount / perPage))
+  const currentPage = Math.min(Math.max(page || 1, 1), totalPages)
+
+  const matches = await prisma.blogPost.findMany({
+    where,
+    include: { blog: true },
+    orderBy: { timestamp: 'desc' },
+    skip: (currentPage - 1) * perPage,
+    take: perPage,
+  })
+
+  return { matches, totalPages, currentPage }
 }
