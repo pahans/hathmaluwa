@@ -1,4 +1,6 @@
+import { revalidateTag } from 'next/cache'
 import prisma from '../../../../lib/prisma'
+import { POSTS_CACHE_TAG } from '../../../../lib/posts'
 import { parseFeed } from '../../../../lib/websub/parseFeed'
 import { verifySignature } from '../../../../lib/websub/verifySignature'
 
@@ -88,6 +90,8 @@ export async function POST(request: Request) {
       }),
     ),
   )
+
+  if (entries.length > 0) revalidateTag(POSTS_CACHE_TAG, 'max')
 
   return new Response(null, { status: 204 })
 }

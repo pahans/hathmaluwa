@@ -1,4 +1,4 @@
-import prisma from '../../lib/prisma'
+import { getLatestPosts } from '../../lib/posts'
 import { SITE_URL, TAGLINE } from '../../lib/site'
 
 // Dynamic (not prerendered) - like every other DB-backed route in this app.
@@ -18,12 +18,7 @@ function escapeXml(value: string): string {
 }
 
 export async function GET() {
-  const posts = await prisma.blogPost.findMany({
-    where: { blog: { approved: true, banned: false } },
-    include: { blog: true },
-    orderBy: { timestamp: 'desc' },
-    take: FEED_ITEM_LIMIT,
-  })
+  const posts = await getLatestPosts(FEED_ITEM_LIMIT)
 
   const items = posts
     .map(

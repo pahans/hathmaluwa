@@ -1,14 +1,11 @@
-import type { Blog, BlogPost } from '@prisma/client'
 import Layout from '../components/layout'
 import Sidebar from '../components/sidebar'
 import PostCard from '../components/post-card'
 import Pagination from '../components/pagination'
 import Tagline from '../components/tagline'
-import prisma from '../lib/prisma'
+import { getLatestPosts, searchPosts } from '../lib/posts'
 
 const POSTS_PER_PAGE = 10
-
-type PostWithBlog = BlogPost & { blog: Blog }
 
 export default async function Home({
   searchParams,
@@ -19,39 +16,11 @@ export default async function Home({
   const q = typeof params.q === 'string' ? params.q.trim().slice(0, 100) : ''
   const requestedPage = typeof params.page === 'string' ? parseInt(params.page, 10) : 1
 
-  const latest = await prisma.blogPost.findMany({
-    where: { blog: { approved: true, banned: false } },
-    include: { blog: true },
-    orderBy: { timestamp: 'desc' },
-    take: 30,
-  })
+  const latest = await getLatestPosts(30)
 
   // A search replaces the feed only. The popular-posts sidebar always draws from the latest posts.
   // Unapproved blogs (pending /signup review) and banned blogs never show up here or in search.
-  const where = {
-    blog: { approved: true, banned: false },
-    ...(q
-      ? {
-          OR: [
-            { postTitle: { contains: q, mode: 'insensitive' as const } },
-            { summary: { contains: q, mode: 'insensitive' as const } },
-            { blog: { name: { contains: q, mode: 'insensitive' as const } } },
-          ],
-        }
-      : {}),
-  }
-
-  const matchCount = await prisma.blogPost.count({ where })
-  const totalPages = Math.max(1, Math.ceil(matchCount / POSTS_PER_PAGE))
-  const currentPage = Math.min(Math.max(requestedPage || 1, 1), totalPages)
-
-  const matches: PostWithBlog[] = await prisma.blogPost.findMany({
-    where,
-    include: { blog: true },
-    orderBy: { timestamp: 'desc' },
-    skip: (currentPage - 1) * POSTS_PER_PAGE,
-    take: POSTS_PER_PAGE,
-  })
+  const { matches, totalPages, currentPage } = await searchPosts(q, requestedPage, POSTS_PER_PAGE)
 
   const now = Date.now()
   const oneDayMs = 24 * 60 * 60 * 1000
