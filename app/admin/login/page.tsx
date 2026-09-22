@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: 'Admin sign in',
 }
 
+// Reads searchParams directly; never worth prerendering an auth page anyway.
+export const instant = false
+
 export default async function AdminLogin({
   searchParams,
 }: {

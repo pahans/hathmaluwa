@@ -1,11 +1,6 @@
 import { getLatestPosts } from '../../lib/posts'
 import { SITE_URL, TAGLINE } from '../../lib/site'
 
-// Dynamic (not prerendered) - like every other DB-backed route in this app.
-// `revalidate` would make Next.js try to statically generate this page at
-// `next build` time, which needs a live DATABASE_URL there and broke CI.
-export const dynamic = 'force-dynamic'
-
 const FEED_ITEM_LIMIT = 50
 
 function escapeXml(value: string): string {
