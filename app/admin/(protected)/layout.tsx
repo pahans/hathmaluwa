@@ -8,6 +8,10 @@ export const metadata: Metadata = {
   title: 'Admin',
 }
 
+// Every admin page is session-gated (cookies()), so none of it can be
+// prerendered - opt the whole subtree out of the static-shell requirement.
+export const instant = false
+
 // The real (not just optimistic) auth check - proxy.ts only confirms a
 // session cookie exists, this verifies its signature and re-checks the
 // email allowlist. Every route under (protected) shares this layout, so

@@ -170,6 +170,17 @@ body { background: var(--surface); color: var(--ink); margin: 0; }
   .hm-f-navy { fill: var(--navy); }
   .hm-empty { padding-block: var(--space-5); color: var(--ink-muted); }
 
+  /* skeleton loading */
+  .hm-skel { background: var(--plate); border-radius: var(--radius-sm); flex: none; }
+  .hm-skel-line { display: block; }
+  @media (prefers-reduced-motion: no-preference) {
+    .hm-skel { animation: hm-skel-pulse 1.4s ease-in-out infinite; }
+  }
+  @keyframes hm-skel-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+  }
+
   /* pagination */
   .hm-pagination { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: var(--space-1); padding-block: var(--space-4) 0; }
   .hm-pg {
