@@ -1,7 +1,7 @@
 import prisma from '../prisma'
-import { discoverFeedUrl, discoverHub, NoHubAdvertisedError } from './discover'
+import { defaultBloggerFeedUrl, discoverFeedUrl, discoverHub, isFeedBurnerUrl, NoHubAdvertisedError } from './discover'
 import { generateSubscriptionSecret } from './secret'
-import { sendSubscription, WEBSUB_HUB_URL } from './subscribe'
+import { sendSubscription } from './subscribe'
 import { backfillBlog } from './backfillBlog'
 
 export interface OnboardBlogOptions {
@@ -12,6 +12,7 @@ export interface OnboardBlogOptions {
   // Skips discoverFeedUrl and uses this feed URL directly - lets a submitter
   // give us their feed URL when we can't discover it ourselves (e.g. the
   // homepage is behind bot protection but the feed itself is reachable).
+  // FeedBurner URLs are ignored in favour of the blog's own feed.
   feedUrlOverride?: string
 }
 
@@ -28,7 +29,10 @@ export async function onboardBlog(
 ) {
   const { approved = true, feedUrlOverride } = options
 
-  const feedUrl = feedUrlOverride ?? (await discoverFeedUrl(blogUrl))
+  const feedUrl =
+    feedUrlOverride && !isFeedBurnerUrl(feedUrlOverride)
+      ? (defaultBloggerFeedUrl(feedUrlOverride) ?? feedUrlOverride)
+      : await discoverFeedUrl(blogUrl)
 
   let topicUrl = feedUrl
   let hubUrl: string | null = null
@@ -37,10 +41,7 @@ export async function onboardBlog(
   try {
     const discovered = await discoverHub(feedUrl)
     topicUrl = discovered.feedUrl
-    // We ignore discovered.hubUrl and always subscribe through WEBSUB_HUB_URL
-    // (see subscribe.ts) - discoverHub is still used to confirm the feed
-    // advertises a hub at all, so feeds with none still fall back to polling.
-    hubUrl = WEBSUB_HUB_URL
+    hubUrl = discovered.hubUrl
     subscriptionSecret = generateSubscriptionSecret()
   } catch (error) {
     if (!(error instanceof NoHubAdvertisedError)) throw error

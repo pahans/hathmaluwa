@@ -41,7 +41,7 @@ Public, unauthenticated entry points that trigger outbound fetches (the signup f
 ## Getting a blog listed
 
 - **Self-serve**: [`/signup`](app/signup) → [`app/api/signup/route.ts`](app/api/signup/route.ts) validates the submission, runs it through the SSRF-guarded `onboardBlog`, and creates the blog with `approved: false`. It only shows up in the public feed after an operator runs `pnpm approve-blog`.
-- **Operator-run scripts** (already-curated blogs, bulk imports, cleanup): [`scripts/`](scripts) — `add-blog`, `bulk-add-blogs`, `approve-blog`, `list-pending-blogs`, `backfill-blog`, `dedupe-blog-stubs`, `fix-blog-authors`, `fix-blog-homepage-urls`, `migrate-websub-hub`. Each is exposed as a `pnpm` script in [`package.json`](package.json).
+- **Operator-run scripts** (already-curated blogs, bulk imports, cleanup): [`scripts/`](scripts) — `add-blog`, `bulk-add-blogs`, `approve-blog`, `list-pending-blogs`, `backfill-blog`, `dedupe-blog-stubs`, `fix-blog-authors`, `fix-blog-homepage-urls`, `migrate-to-declared-hubs`. Each is exposed as a `pnpm` script in [`package.json`](package.json).
 
 ## App routes
 
