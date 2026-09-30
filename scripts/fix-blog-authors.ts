@@ -1,4 +1,5 @@
 import prisma from '../lib/prisma'
+import { fetchableFeedUrl } from '../lib/websub/discover'
 import { safeFetch } from '../lib/websub/safeFetch'
 import { authorOf } from '../lib/websub/feedAuthor'
 
@@ -24,7 +25,7 @@ async function main() {
   let fixed = 0
   for (const blog of candidates) {
     try {
-      const res = await safeFetch(blog.feedUrl as string)
+      const res = await safeFetch(fetchableFeedUrl(blog.feedUrl as string))
       if (!res.ok) {
         console.log(`ERROR ${blog.name}: failed to fetch ${blog.feedUrl}: ${res.status}`)
         continue

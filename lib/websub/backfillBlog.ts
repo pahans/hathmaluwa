@@ -1,5 +1,6 @@
 import type { Blog } from '@prisma/client'
 import prisma from '../prisma'
+import { fetchableFeedUrl } from './discover'
 import { parseFeed } from './parseFeed'
 import { safeFetch } from './safeFetch'
 
@@ -9,7 +10,7 @@ import { safeFetch } from './safeFetch'
 export async function backfillBlog(blog: Pick<Blog, 'id' | 'feedUrl'>): Promise<number> {
   if (!blog.feedUrl) throw new Error(`Blog ${blog.id} has no feedUrl to backfill from`)
 
-  const res = await safeFetch(blog.feedUrl)
+  const res = await safeFetch(fetchableFeedUrl(blog.feedUrl))
   if (!res.ok) throw new Error(`Failed to fetch feed ${blog.feedUrl}: ${res.status}`)
 
   const entries = parseFeed(await res.text())
