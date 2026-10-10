@@ -106,6 +106,14 @@ function normalizeThumbnailUrl(url: string | null): string | null {
   return url
 }
 
+// Blogger's WebSub hub pushes feeds with http:// post links, while fetching
+// the feed directly (backfill/poll) gives https:// - same post, two urls,
+// and blog_posts is unique on url, so it'd be stored (and shown) twice.
+// Blogspot serves everything over https, so always store that form.
+function canonicalPostUrl(url: string): string {
+  return url.replace(/^http:\/\/([^/]+\.blogspot\.com)\//i, 'https://$1/')
+}
+
 // Feeds that embed HTML content often carry their lead image inline instead
 // of a separate <media:thumbnail>/enclosure. Scan every <img> rather than
 // just the first one, since posts often lead with a small icon/badge before
@@ -175,7 +183,7 @@ function parseAtomEntry(entry: Record<string, any>): ParsedFeedEntry | null {
 
   return {
     title,
-    url,
+    url: canonicalPostUrl(url),
     timestamp: new Date(published),
     summary: rawSummary ? plainTextExcerpt(rawSummary) : null,
     thumbnail: normalizeThumbnailUrl(atomThumbnail(entry, links) ?? (rawSummary ? firstImageUrl(rawSummary) : null)),
@@ -210,7 +218,7 @@ function parseRssItem(item: Record<string, any>): ParsedFeedEntry | null {
 
   return {
     title,
-    url,
+    url: canonicalPostUrl(url),
     timestamp: new Date(pubDate),
     summary: rawSummary ? plainTextExcerpt(rawSummary) : null,
     thumbnail: normalizeThumbnailUrl(
